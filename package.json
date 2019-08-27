@@ -4,6 +4,7 @@
   "description": "Language support package for Alta",
   "version": "0.0.1",
   "author": "Ariel Abreu <facekapow@outlook.com>",
+  "publisher": "alta-lang",
   "engines": {
     "vscode": "^1.37.0"
   },
