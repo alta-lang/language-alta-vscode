@@ -8,6 +8,7 @@
   "engines": {
     "vscode": "^1.37.0"
   },
+  "repository": "https://github.com/alta-lang/language-alta-vscode",
   "categories": [
     "Programming Languages"
   ],
