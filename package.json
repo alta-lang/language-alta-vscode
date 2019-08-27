@@ -1,0 +1,41 @@
+{
+  "name": "language-alta",
+  "displayName": "Alta Language Support",
+  "description": "Language support package for Alta",
+  "version": "0.0.1",
+  "author": "Ariel Abreu <facekapow@outlook.com>",
+  "engines": {
+    "vscode": "^1.37.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [
+      {
+        "id": "alta",
+        "aliases": [
+          "Alta",
+          "alta"
+        ],
+        "extensions": [
+          ".alta"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "alta",
+        "scopeName": "source.alta",
+        "path": "./syntaxes/alta.tmLanguage.json"
+      }
+    ]
+  },
+  "devDependencies": {
+    "js-yaml": "^3.13.1"
+  },
+  "scripts": {
+    "convert": "npx js-yaml syntaxes/alta.tmLanguage.yaml > syntaxes/alta.tmLanguage.json"
+  }
+}
