@@ -2,7 +2,7 @@
   "name": "language-alta",
   "displayName": "Alta Language Support",
   "description": "Language support package for Alta",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Ariel Abreu <facekapow@outlook.com>",
   "publisher": "alta-lang",
   "engines": {
