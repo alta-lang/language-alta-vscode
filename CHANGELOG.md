@@ -2,6 +2,14 @@
 
 All notable changes to the "language-alta" extension will be documented in this file.
 
+## [0.0.3] - 2019-08-28
+### Added
+- Syntax highlighting for the simple assignment operator (`=`) overload
+- Syntax highlighting for Docca sections
+### Fixed
+- Lambda expressions do not require parentheses at their ends
+- Compound assignment operator overloads can only appear in left-hand overloads
+
 ## [0.0.2] - 2019-08-27
 ### Added
 - Syntax highlighting for some Docca annotations
