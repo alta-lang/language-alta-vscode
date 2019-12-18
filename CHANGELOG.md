@@ -1,6 +1,23 @@
-# Change Log
+# Changelog
 
 All notable changes to the "language-alta" extension will be documented in this file.
+
+## [0.1.0] - 2019-12-17
+### Added
+#### Syntax Highlighting
+- Bitfield definitions
+- Enumeration definitions
+- Capture class definitions (i.e. class definitions inside a function)
+- Export statements for local items
+- Iterators in ranged-for loops
+- Yield expressions
+- Generator functions
+- `protected` class item modifier
+### Fixed
+#### Syntax Highlighting
+- Highlight aliases in `import` and `export` statements
+- Highlight `this` and `super` in method calls
+- Correct righthand-`this` operator-overload component highlighting
 
 ## [0.0.3] - 2019-08-28
 ### Added

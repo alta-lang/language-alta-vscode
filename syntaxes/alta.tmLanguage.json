@@ -23,6 +23,12 @@
       "include": "#class-definition"
     },
     {
+      "include": "#bitfield-definition"
+    },
+    {
+      "include": "#enumeration-definition"
+    },
+    {
       "include": "#type-alias"
     },
     {
@@ -306,6 +312,9 @@
           "include": "#item-alias"
         },
         {
+          "include": "#class-definition"
+        },
+        {
           "include": "#expression"
         },
         {
@@ -317,7 +326,7 @@
       "patterns": [
         {
           "name": "meta.freeform-cherry-pick-export.alta",
-          "match": "\\b(export)\\b\\s*((?<export-item>\\b[A-Za-z_][A-Za-z_0-9]*\\b)(?:\\s*,\\s*\\g<export-item>)*\\s*,?)\\s*\\b(from)\\b\\s*(\"(?:[^\"\\\\]|\\\\.)*\")",
+          "match": "\\b(export)\\b\\s*((?<exportItem>\\b[A-Za-z_][A-Za-z_0-9]*\\b(\\s*\\bas\\b\\s*[A-Za-z_][A-Za-z_0-9]*)?)(?:\\s*,\\s*\\g<exportItem>)*\\s*,?)\\s*\\b(from)\\b\\s*(\"(?:[^\"\\\\]|\\\\.)*\")",
           "captures": {
             "1": {
               "name": "keyword.export.alta"
@@ -325,15 +334,26 @@
             "2": {
               "patterns": [
                 {
-                  "name": "variable.exported.alta",
-                  "match": "\\b[A-Za-z_][A-Za-z_0-9]*\\b"
+                  "name": "meta.export-item.alta",
+                  "match": "\\b([A-Za-z_][A-Za-z_0-9]*)\\b(\\s*\\b(as)\\b\\s*([A-Za-z_][A-Za-z_0-9]*))?",
+                  "captures": {
+                    "1": {
+                      "name": "variable.exported.alta"
+                    },
+                    "3": {
+                      "name": "keyword.export.as.alta"
+                    },
+                    "4": {
+                      "name": "variable.exported.alias.alta"
+                    }
+                  }
                 }
               ]
             },
-            "4": {
+            "5": {
               "name": "keyword.export.from.alta"
             },
-            "5": {
+            "6": {
               "patterns": [
                 {
                   "include": "#string"
@@ -350,7 +370,7 @@
               "name": "keyword.export.alta"
             }
           },
-          "end": "(\\})\\s*\\b(from)\\b\\s*(\"(?:[^\"\\\\]|\\\\.)*\")",
+          "end": "(\\})(?:\\s*\\b(from)\\b\\s*(\"(?:[^\"\\\\]|\\\\.)*\"))?",
           "endCaptures": {
             "2": {
               "name": "keyword.export.from.alta"
@@ -365,8 +385,19 @@
           },
           "patterns": [
             {
-              "name": "variable.exported.alta",
-              "match": "\\b[A-Za-z_][A-Za-z_0-9]*\\b"
+              "name": "meta.export-item.alta",
+              "match": "\\b([A-Za-z_][A-Za-z_0-9]*)\\b(\\s*\\b(as)\\b\\s*([A-Za-z_][A-Za-z_0-9]*))?",
+              "captures": {
+                "1": {
+                  "name": "variable.exported.alta"
+                },
+                "3": {
+                  "name": "keyword.export.as.alta"
+                },
+                "4": {
+                  "name": "variable.exported.alias.alta"
+                }
+              }
             }
           ]
         },
@@ -393,7 +424,7 @@
           }
         },
         {
-          "name": "meta.freeform-cherry-pick-export.alta",
+          "name": "meta.external-aliased-export.alta",
           "match": "\\b(export)\\b\\s*(\\*)\\s*(?:\\b(as)\\b\\s*\\b([A-Za-z_][A-Za-z_0-9]*)\\b)?\\s*\\b(from)\\b\\s*(\"(?:[^\"\\\\]|\\\\.)*\")\\s*(?:\\b(as)\\b\\s*\\b([A-Za-z_][A-Za-z_0-9]*)\\b)?",
           "captures": {
             "1": {
@@ -423,6 +454,38 @@
             },
             "8": {
               "name": "entity.name.namespace.alta"
+            }
+          }
+        },
+        {
+          "name": "meta.local-export.alta",
+          "match": "\\b(export)\\b\\s*((?<id>(\\$?\\b[A-Za-z_][A-Za-z_0-9]*\\b|\\$)((?:\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b)*)(\\s*<\\s*(?<rootType>(?:\\b(?:ptr|ref|const|unsigned|short|long|signed)\\b\\s*)*(?:(?:\\(\\s*(?:(?<param>(?:\\b[A-Za-z_][A-Za-z_0-9]*\\b\\s*:\\s*)?\\g<rootType>)\\s*(?:,\\s*\\g<param>)*,?)?\\s*\\)\\s*(?:=>|->)\\s*\\g<rootType>)|(?:\\(\\s*\\g<rootType>\\s*\\)(?:\\s*\\?)?)|(?:(?:\\b[A-Za-z_][A-Za-z_0-9]*\\b\\.)*\\b[A-Za-z_][A-Za-z_0-9]*\\b(?:\\s*<\\s*\\g<rootType>(?:\\s*,\\s*\\g<rootType>)*\\s*>)?))(?:\\s*\\?)?(?:\\s*\\|\\s*\\g<rootType>)?)(\\s*,\\s*\\g<rootType>)*\\s*,?\\s*>\\s*)?(\\s*\\bas\\b\\s*\\b[A-Za-z_][A-Za-z_0-9]*\\b)?)(\\s*,\\s*\\g<id>)*)",
+          "captures": {
+            "1": {
+              "name": "keyword.export.alta"
+            },
+            "2": {
+              "patterns": [
+                {
+                  "name": "meta.export-item.alta",
+                  "match": "((\\$?\\b[A-Za-z_][A-Za-z_0-9]*\\b|\\$)((?:\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b)*)(\\s*<\\s*(?<rootType>(?:\\b(?:ptr|ref|const|unsigned|short|long|signed)\\b\\s*)*(?:(?:\\(\\s*(?:(?<param>(?:\\b[A-Za-z_][A-Za-z_0-9]*\\b\\s*:\\s*)?\\g<rootType>)\\s*(?:,\\s*\\g<param>)*,?)?\\s*\\)\\s*(?:=>|->)\\s*\\g<rootType>)|(?:\\(\\s*\\g<rootType>\\s*\\)(?:\\s*\\?)?)|(?:(?:\\b[A-Za-z_][A-Za-z_0-9]*\\b\\.)*\\b[A-Za-z_][A-Za-z_0-9]*\\b(?:\\s*<\\s*\\g<rootType>(?:\\s*,\\s*\\g<rootType>)*\\s*>)?))(?:\\s*\\?)?(?:\\s*\\|\\s*\\g<rootType>)?)(\\s*,\\s*\\g<rootType>)*\\s*,?\\s*>\\s*)?)(\\s*\\b(as)\\b\\s*\\b([A-Za-z_][A-Za-z_0-9]*)\\b)?",
+                  "captures": {
+                    "1": {
+                      "patterns": [
+                        {
+                          "include": "#strict-accessor"
+                        }
+                      ]
+                    },
+                    "9": {
+                      "name": "keyword.export.as.alta"
+                    },
+                    "10": {
+                      "name": "variable.exported.alias.alta"
+                    }
+                  }
+                }
+              ]
             }
           }
         }
@@ -604,7 +667,7 @@
         },
         {
           "name": "meta.ranged-for-loop.alta",
-          "begin": "\\b(for)\\b\\s*([A-Za-z_][A-Za-z_0-9]*)\\s*:\\s*(?<rootType>(?:\\b(?:ptr|ref|const|unsigned|short|long|signed)\\b\\s*)*(?:(?:\\(\\s*(?:(?<param>(?:\\b[A-Za-z_][A-Za-z_0-9]*\\b\\s*:\\s*)?\\g<rootType>)\\s*(?:,\\s*\\g<param>)*,?)?\\s*\\)\\s*(?:=>|->)\\s*\\g<rootType>)|(?:\\(\\s*\\g<rootType>\\s*\\)(?:\\s*\\?)?)|(?:(?:\\b[A-Za-z_][A-Za-z_0-9]*\\b\\.)*\\b[A-Za-z_][A-Za-z_0-9]*\\b(?:\\s*<\\s*\\g<rootType>(?:\\s*,\\s*\\g<rootType>)*\\s*>)?))(?:\\s*\\?)?(?:\\s*\\|\\s*\\g<rootType>)?)\\s*\\b(in)\\b\\s*((?:[^\\.:]|\\.(?!\\.)|:(?!:))+)(\\.\\.\\.?|:::?)(.+)\\s*\\{",
+          "begin": "\\b(for)\\b\\s*([A-Za-z_][A-Za-z_0-9]*)\\s*:\\s*(?<rootType>(?:\\b(?:ptr|ref|const|unsigned|short|long|signed)\\b\\s*)*(?:(?:\\(\\s*(?:(?<param>(?:\\b[A-Za-z_][A-Za-z_0-9]*\\b\\s*:\\s*)?\\g<rootType>)\\s*(?:,\\s*\\g<param>)*,?)?\\s*\\)\\s*(?:=>|->)\\s*\\g<rootType>)|(?:\\(\\s*\\g<rootType>\\s*\\)(?:\\s*\\?)?)|(?:(?:\\b[A-Za-z_][A-Za-z_0-9]*\\b\\.)*\\b[A-Za-z_][A-Za-z_0-9]*\\b(?:\\s*<\\s*\\g<rootType>(?:\\s*,\\s*\\g<rootType>)*\\s*>)?))(?:\\s*\\?)?(?:\\s*\\|\\s*\\g<rootType>)?)\\s*\\b(in)\\b\\s*((?:[^\\.:]|\\.(?!\\.)|:(?!:))+)(?:(\\.\\.\\.?|:::?)(.+))?\\s*\\{",
           "beginCaptures": {
             "1": {
               "name": "keyword.control.loop.for.alta"
@@ -824,7 +887,7 @@
         },
         {
           "name": "meta.mega-function-call.alta",
-          "begin": "((?<expr>(?<firstExpr>(?:(?<varDef>((?:\\b(?:export|literal)\\b\\s*)*)\\b(var|let)\\b\\s*\\b([A-Za-z_][A-Za-z_0-9]*)\\b\\s*(?::\\s*(?<rootType>(?:\\b(?:ptr|ref|const|unsigned|short|long|signed)\\b\\s*)*(?:(?:\\(\\s*(?:(?<param>(?:\\b[A-Za-z_][A-Za-z_0-9]*\\b\\s*:\\s*)?\\g<rootType>)\\s*(?:,\\s*\\g<param>)*,?)?\\s*\\)\\s*(?:=>|->)\\s*\\g<rootType>)|(?:\\(\\s*\\g<rootType>\\s*\\)(?:\\s*\\?)?)|(?:(?:\\b[A-Za-z_][A-Za-z_0-9]*\\b\\.)*\\b[A-Za-z_][A-Za-z_0-9]*\\b(?:\\s*<\\s*\\g<rootType>(?:\\s*,\\s*\\g<rootType>)*\\s*>)?))(?:\\s*\\?)?(?:\\s*\\|\\s*\\g<rootType>)?)\\s*)?=\\s*)\\g<expr>)|(?:((?:\\b(?:export|literal)\\b\\s*)*)\\b(var|let)\\b\\s*\\b([A-Za-z_][A-Za-z_0-9]*)\\b\\s*(?::\\s*\\g<rootType>\\s*))|\\b(?:0x[0-9A-Fa-f]+(?:\\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\\.[0-7]+)?|0b[0-1]+(?:\\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\\.[0-9A-Za-z]+)?)\\b|\\b[0-9]+(?:\\.[0-9]+)?\\b|\\b(?:true|false)\\b|'(?:[^'\\\\]|\\\\.)'|\"(?:[^\"\\\\]|\\\\.)*\"|\\bsizeof\\b\\s*\\g<rootType>|\\bnew\\b\\s*(\\*|\\bpersistent\\b)?\\s*\\b[A-Za-z_][A-Za-z_0-9]*\\b(?:\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b)*(?:\\s*<\\s*\\g<rootType>(\\s*,\\s*\\g<rootType>)*\\s*,?\\s*>\\s*)?|(\\$?\\b[A-Za-z_][A-Za-z_0-9]*\\b|\\$)(?:\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b)*(?:\\s*<\\s*\\g<rootType>(\\s*,\\s*\\g<rootType>)*\\s*,?\\s*>\\s*)?|(?:\\(\\g<expr>\\)(?:\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b)*)|(?:\\+\\+|\\-\\-|!|~|\\-|&|\\*)\\s*\\g<expr>)\\s*(?<secondExpr>\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b|(\\+=|\\-=|\\*=|/=|&=|\\|=|^=|%=|==|!=|\\+|\\-|\\*|/|%|&&|\\|\\||&|\\||^|<=|>=|<|>)\\s*\\g<expr>|(?:\\+\\+|\\-\\-)|\\??\\(\\s*(([A-Za-z_][A-Za-z_0-9]*\\s*:\\s*)?\\g<expr>\\s*(?:\\s*,\\s*([A-Za-z_][A-Za-z_0-9]*\\s*:\\s*)?\\g<expr>)*\\s*,?)?\\s*\\)\\s*\\g<secondExpr>?|\\[\\s*\\g<expr>\\s*\\]\\s*\\g<secondExpr>?|\\?\\s*\\g<expr>\\s*:\\s*\\g<expr>|(?:(?<attribute>(?:@(?:@)?)\\b(?:[A-Za-z_][A-Za-z_0-9]*)(?:\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b)*\\b(?:\\s*\\(\\s*(?:(?<attrParam>\\b(?:0x[0-9A-Fa-f]+(?:\\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\\.[0-7]+)?|0b[0-1]+(?:\\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\\.[0-9A-Za-z]+)?)\\b|\\b[0-9]+(?:\\.[0-9]+)?\\b|\\b(?:true|false)\\b|'(?:[^'\\\\]|\\\\.)'|\"(?:[^\"\\\\]|\\\\.)*\"|\\b[A-Za-z_][A-Za-z_0-9]*\\b(?:\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b)*(?:\\s*<\\s*\\g<rootType>(?:\\s*,\\s*\\g<rootType>)*\\s*,?\\s*>\\s*)?)(?:\\s*,\\s*\\g<attrParam>)*\\s*,?)?\\s*\\))?))*\\s*=\\s*\\g<expr>|\\bas\\b\\s*\\g<rootType>(\\s*\\g<secondExpr>)?|\\binstanceof\\b\\s*\\g<rootType>)?))?\\s*(\\?)?\\s*\\(\\s*([A-Za-z_][A-Za-z_0-9]*\\s*:\\s*)?",
+          "begin": "((?<expr>(?<firstExpr>(?:(?<varDef>((?:\\b(?:export|literal)\\b\\s*)*)\\b(var|let)\\b\\s*\\b([A-Za-z_][A-Za-z_0-9]*)\\b\\s*(?::\\s*(?<rootType>(?:\\b(?:ptr|ref|const|unsigned|short|long|signed)\\b\\s*)*(?:(?:\\(\\s*(?:(?<param>(?:\\b[A-Za-z_][A-Za-z_0-9]*\\b\\s*:\\s*)?\\g<rootType>)\\s*(?:,\\s*\\g<param>)*,?)?\\s*\\)\\s*(?:=>|->)\\s*\\g<rootType>)|(?:\\(\\s*\\g<rootType>\\s*\\)(?:\\s*\\?)?)|(?:(?:\\b[A-Za-z_][A-Za-z_0-9]*\\b\\.)*\\b[A-Za-z_][A-Za-z_0-9]*\\b(?:\\s*<\\s*\\g<rootType>(?:\\s*,\\s*\\g<rootType>)*\\s*>)?))(?:\\s*\\?)?(?:\\s*\\|\\s*\\g<rootType>)?)\\s*)?=\\s*)\\g<expr>)|(?:((?:\\b(?:export|literal)\\b\\s*)*)\\b(var|let)\\b\\s*\\b([A-Za-z_][A-Za-z_0-9]*)\\b\\s*(?::\\s*\\g<rootType>\\s*))|\\b(?:0x[0-9A-Fa-f]+(?:\\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\\.[0-7]+)?|0b[0-1]+(?:\\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\\.[0-9A-Za-z]+)?)\\b|\\b[0-9]+(?:\\.[0-9]+)?\\b|\\b(?:true|false)\\b|'(?:[^'\\\\]|\\\\.)'|\"(?:[^\"\\\\]|\\\\.)*\"|\\bsizeof\\b\\s*\\g<rootType>|\\bnew\\b\\s*(\\*|\\bpersistent\\b)?\\s*\\b[A-Za-z_][A-Za-z_0-9]*\\b(?:\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b)*(?:\\s*<\\s*\\g<rootType>(\\s*,\\s*\\g<rootType>)*\\s*,?\\s*>\\s*)?|(?:\\s*\\byield\\b\\s*\\g<expr>\\s*)|(\\$?\\b[A-Za-z_][A-Za-z_0-9]*\\b|\\$)(?:\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b)*(?:\\s*<\\s*\\g<rootType>(\\s*,\\s*\\g<rootType>)*\\s*,?\\s*>\\s*)?|(?:\\(\\g<expr>\\)(?:\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b)*)|(?:\\+\\+|\\-\\-|!|~|\\-|&|\\*)\\s*\\g<expr>)\\s*(?<secondExpr>\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b|(\\+=|\\-=|\\*=|/=|&=|\\|=|^=|%=|==|!=|\\+|\\-|\\*|/|%|&&|\\|\\||&|\\||^|<=|>=|<|>)\\s*\\g<expr>|(?:\\+\\+|\\-\\-)|\\??\\(\\s*(([A-Za-z_][A-Za-z_0-9]*\\s*:\\s*)?\\g<expr>\\s*(?:\\s*,\\s*([A-Za-z_][A-Za-z_0-9]*\\s*:\\s*)?\\g<expr>)*\\s*,?)?\\s*\\)\\s*\\g<secondExpr>?|\\[\\s*\\g<expr>\\s*\\]\\s*\\g<secondExpr>?|\\?\\s*\\g<expr>\\s*:\\s*\\g<expr>|(?:(?<attribute>(?:@(?:@)?)\\b(?:[A-Za-z_][A-Za-z_0-9]*)(?:\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b)*\\b(?:\\s*\\(\\s*(?:(?<attrParam>\\b(?:0x[0-9A-Fa-f]+(?:\\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\\.[0-7]+)?|0b[0-1]+(?:\\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\\.[0-9A-Za-z]+)?)\\b|\\b[0-9]+(?:\\.[0-9]+)?\\b|\\b(?:true|false)\\b|'(?:[^'\\\\]|\\\\.)'|\"(?:[^\"\\\\]|\\\\.)*\"|\\b[A-Za-z_][A-Za-z_0-9]*\\b(?:\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b)*(?:\\s*<\\s*\\g<rootType>(?:\\s*,\\s*\\g<rootType>)*\\s*,?\\s*>\\s*)?)(?:\\s*,\\s*\\g<attrParam>)*\\s*,?)?\\s*\\))?))*\\s*=\\s*\\g<expr>|\\bas\\b\\s*\\g<rootType>(\\s*\\g<secondExpr>)?|\\binstanceof\\b\\s*\\g<rootType>)?))?\\s*(\\?)?\\s*\\(\\s*([A-Za-z_][A-Za-z_0-9]*\\s*:\\s*)?",
           "beginCaptures": {
             "1": {
               "patterns": [
@@ -878,7 +941,7 @@
         },
         {
           "name": "meta.mega-expression.alta",
-          "match": "(?<expr>(?<firstExpr>(?:((?:\\b(?:export|literal)\\b\\s*)*)\\b(var|let)\\b\\s*\\b([A-Za-z_][A-Za-z_0-9]*)\\b\\s*(?::\\s*(?<rootType>(?:\\b(?:ptr|ref|const|unsigned|short|long|signed)\\b\\s*)*(?:(?:\\(\\s*(?:(?<param>(?:\\b[A-Za-z_][A-Za-z_0-9]*\\b\\s*:\\s*)?\\g<rootType>)\\s*(?:,\\s*\\g<param>)*,?)?\\s*\\)\\s*(?:=>|->)\\s*\\g<rootType>)|(?:\\(\\s*\\g<rootType>\\s*\\)(?:\\s*\\?)?)|(?:(?:\\b[A-Za-z_][A-Za-z_0-9]*\\b\\.)*\\b[A-Za-z_][A-Za-z_0-9]*\\b(?:\\s*<\\s*\\g<rootType>(?:\\s*,\\s*\\g<rootType>)*\\s*>)?))(?:\\s*\\?)?(?:\\s*\\|\\s*\\g<rootType>)?)\\s*)?=\\s*\\g<expr>)|(?:((?:\\b(?:export|literal)\\b\\s*)*)\\b(var|let)\\b\\s*\\b([A-Za-z_][A-Za-z_0-9]*)\\b\\s*(?::\\s*\\g<rootType>\\s*))|\\b(?:0x[0-9A-Fa-f]+(?:\\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\\.[0-7]+)?|0b[0-1]+(?:\\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\\.[0-9A-Za-z]+)?)\\b|\\b[0-9]+(?:\\.[0-9]+)?\\b|\\b(?:true|false)\\b|'(?:[^'\\\\]|\\\\.)'|\"(?:[^\"\\\\]|\\\\.)*\"|\\bsizeof\\b\\s*\\g<rootType>|\\bnew\\b\\s*(\\*|\\bpersistent\\b)?\\s*\\b[A-Za-z_][A-Za-z_0-9]*\\b(?:\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b)*(?:\\s*<\\s*\\g<rootType>(\\s*,\\s*\\g<rootType>)*\\s*,?\\s*>\\s*)?|(\\$?\\b[A-Za-z_][A-Za-z_0-9]*\\b|\\$)(?:\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b)*(?:\\s*<\\s*\\g<rootType>(\\s*,\\s*\\g<rootType>)*\\s*,?\\s*>\\s*)?|(?:\\(\\g<expr>\\)(?:\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b)*)|(?:\\+\\+|\\-\\-|!|~|\\-|&|\\*)\\s*\\g<expr>)\\s*(?<secondExpr>\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b|(\\+=|\\-=|\\*=|/=|&=|\\|=|^=|%=|==|!=|\\+|\\-|\\*|/|%|&&|\\|\\||&|\\||^|<=|>=|<|>)\\s*\\g<expr>|(?:\\+\\+|\\-\\-)|\\??\\(\\s*(([A-Za-z_][A-Za-z_0-9]*\\s*:\\s*)?\\g<expr>\\s*(?:\\s*,\\s*([A-Za-z_][A-Za-z_0-9]*\\s*:\\s*)?\\g<expr>)*\\s*,?)?\\s*\\)\\s*\\g<secondExpr>?|\\[\\s*\\g<expr>\\s*\\]\\s*\\g<secondExpr>?|\\?\\s*\\g<expr>\\s*:\\s*\\g<expr>|(?:(?<attribute>(?:@(?:@)?)\\b(?:[A-Za-z_][A-Za-z_0-9]*)(?:\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b)*\\b(?:\\s*\\(\\s*(?:(?<attrParam>\\b(?:0x[0-9A-Fa-f]+(?:\\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\\.[0-7]+)?|0b[0-1]+(?:\\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\\.[0-9A-Za-z]+)?)\\b|\\b[0-9]+(?:\\.[0-9]+)?\\b|\\b(?:true|false)\\b|'(?:[^'\\\\]|\\\\.)'|\"(?:[^\"\\\\]|\\\\.)*\"|\\b[A-Za-z_][A-Za-z_0-9]*\\b(?:\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b)*(?:\\s*<\\s*\\g<rootType>(?:\\s*,\\s*\\g<rootType>)*\\s*,?\\s*>\\s*)?)(?:\\s*,\\s*\\g<attrParam>)*\\s*,?)?\\s*\\))?))*\\s*=\\s*\\g<expr>|\\bas\\b\\s*\\g<rootType>(\\s*\\g<secondExpr>)?|\\binstanceof\\b\\s*\\g<rootType>)?)",
+          "match": "(?<expr>(?<firstExpr>(?:((?:\\b(?:export|literal)\\b\\s*)*)\\b(var|let)\\b\\s*\\b([A-Za-z_][A-Za-z_0-9]*)\\b\\s*(?::\\s*(?<rootType>(?:\\b(?:ptr|ref|const|unsigned|short|long|signed)\\b\\s*)*(?:(?:\\(\\s*(?:(?<param>(?:\\b[A-Za-z_][A-Za-z_0-9]*\\b\\s*:\\s*)?\\g<rootType>)\\s*(?:,\\s*\\g<param>)*,?)?\\s*\\)\\s*(?:=>|->)\\s*\\g<rootType>)|(?:\\(\\s*\\g<rootType>\\s*\\)(?:\\s*\\?)?)|(?:(?:\\b[A-Za-z_][A-Za-z_0-9]*\\b\\.)*\\b[A-Za-z_][A-Za-z_0-9]*\\b(?:\\s*<\\s*\\g<rootType>(?:\\s*,\\s*\\g<rootType>)*\\s*>)?))(?:\\s*\\?)?(?:\\s*\\|\\s*\\g<rootType>)?)\\s*)?=\\s*\\g<expr>)|(?:((?:\\b(?:export|literal)\\b\\s*)*)\\b(var|let)\\b\\s*\\b([A-Za-z_][A-Za-z_0-9]*)\\b\\s*(?::\\s*\\g<rootType>\\s*))|\\b(?:0x[0-9A-Fa-f]+(?:\\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\\.[0-7]+)?|0b[0-1]+(?:\\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\\.[0-9A-Za-z]+)?)\\b|\\b[0-9]+(?:\\.[0-9]+)?\\b|\\b(?:true|false)\\b|'(?:[^'\\\\]|\\\\.)'|\"(?:[^\"\\\\]|\\\\.)*\"|\\bsizeof\\b\\s*\\g<rootType>|\\bnew\\b\\s*(\\*|\\bpersistent\\b)?\\s*\\b[A-Za-z_][A-Za-z_0-9]*\\b(?:\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b)*(?:\\s*<\\s*\\g<rootType>(\\s*,\\s*\\g<rootType>)*\\s*,?\\s*>\\s*)?|(?:\\s*\\byield\\bs*g<expr>\\s*)|(\\$?\\b[A-Za-z_][A-Za-z_0-9]*\\b|\\$)(?:\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b)*(?:\\s*<\\s*\\g<rootType>(\\s*,\\s*\\g<rootType>)*\\s*,?\\s*>\\s*)?|(?:\\(\\g<expr>\\)(?:\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b)*)|(?:\\+\\+|\\-\\-|!|~|\\-|&|\\*)\\s*\\g<expr>)\\s*(?<secondExpr>\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b|(\\+=|\\-=|\\*=|/=|&=|\\|=|^=|%=|==|!=|\\+|\\-|\\*|/|%|&&|\\|\\||&|\\||^|<=|>=|<|>)\\s*\\g<expr>|(?:\\+\\+|\\-\\-)|\\??\\(\\s*(([A-Za-z_][A-Za-z_0-9]*\\s*:\\s*)?\\g<expr>\\s*(?:\\s*,\\s*([A-Za-z_][A-Za-z_0-9]*\\s*:\\s*)?\\g<expr>)*\\s*,?)?\\s*\\)\\s*\\g<secondExpr>?|\\[\\s*\\g<expr>\\s*\\]\\s*\\g<secondExpr>?|\\?\\s*\\g<expr>\\s*:\\s*\\g<expr>|(?:(?<attribute>(?:@(?:@)?)\\b(?:[A-Za-z_][A-Za-z_0-9]*)(?:\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b)*\\b(?:\\s*\\(\\s*(?:(?<attrParam>\\b(?:0x[0-9A-Fa-f]+(?:\\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\\.[0-7]+)?|0b[0-1]+(?:\\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\\.[0-9A-Za-z]+)?)\\b|\\b[0-9]+(?:\\.[0-9]+)?\\b|\\b(?:true|false)\\b|'(?:[^'\\\\]|\\\\.)'|\"(?:[^\"\\\\]|\\\\.)*\"|\\b[A-Za-z_][A-Za-z_0-9]*\\b(?:\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b)*(?:\\s*<\\s*\\g<rootType>(?:\\s*,\\s*\\g<rootType>)*\\s*,?\\s*>\\s*)?)(?:\\s*,\\s*\\g<attrParam>)*\\s*,?)?\\s*\\))?))*\\s*=\\s*\\g<expr>|\\bas\\b\\s*\\g<rootType>(\\s*\\g<secondExpr>)?|\\binstanceof\\b\\s*\\g<rootType>)?)",
           "captures": {
             "1": {
               "patterns": [
@@ -905,6 +968,14 @@
           "beginCaptures": {
             "1": {
               "patterns": [
+                {
+                  "name": "variable.language.this.alta",
+                  "match": "\\b(this)\\b"
+                },
+                {
+                  "name": "variable.language.super.alta",
+                  "match": "\\b(super)\\b"
+                },
                 {
                   "match": "\\b[A-Za-z_][A-Za-z_0-9]*\\b",
                   "name": "variable.other.alta"
@@ -949,6 +1020,14 @@
           "captures": {
             "1": {
               "patterns": [
+                {
+                  "name": "variable.language.this.alta",
+                  "match": "\\b(this)\\b"
+                },
+                {
+                  "name": "variable.language.super.alta",
+                  "match": "\\b(super)\\b"
+                },
                 {
                   "match": "\\b[A-Za-z_][A-Za-z_0-9]*\\b",
                   "name": "variable.other.alta"
@@ -1252,6 +1331,14 @@
             "1": {
               "patterns": [
                 {
+                  "name": "variable.language.this.alta",
+                  "match": "\\b(this)\\b"
+                },
+                {
+                  "name": "variable.language.super.alta",
+                  "match": "\\b(super)\\b"
+                },
+                {
                   "name": "variable.other.alta",
                   "match": "\\b([A-Za-z_][A-Za-z_0-9]*)\\b"
                 }
@@ -1289,6 +1376,9 @@
         },
         {
           "include": "#number"
+        },
+        {
+          "include": "#yield"
         },
         {
           "include": "#strict-accessor"
@@ -1347,6 +1437,9 @@
         },
         {
           "include": "#number"
+        },
+        {
+          "include": "#yield"
         },
         {
           "include": "#strict-accessor"
@@ -1418,7 +1511,7 @@
       "patterns": [
         {
           "name": "meta.class-statement.alta",
-          "begin": "\\b(public|private)\\b\\s*",
+          "begin": "\\b(public|private|protected)\\b\\s*",
           "beginCaptures": {
             "1": {
               "name": "storage.modifier.visibility.alta"
@@ -1595,13 +1688,13 @@
                 }
               ]
             },
-            "5": {
+            "4": {
               "name": "keyword.operator.alta"
             },
-            "6": {
+            "5": {
               "name": "variable.language.this.alta"
             },
-            "7": {
+            "6": {
               "patterns": [
                 {
                   "include": "#type"
@@ -1863,6 +1956,139 @@
         }
       }
     },
+    "bitfield-definition": {
+      "name": "meta.bitfield-definition.alta",
+      "begin": "((?:(?:\\b(?:export|literal)\\b|(?<attribute>(?:@(?:@)?)\\b(?:[A-Za-z_][A-Za-z_0-9]*)(?:\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b)*\\b(?:\\s*\\(\\s*(?:(?<attrParam>\\b(?:0x[0-9A-Fa-f]+(?:\\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\\.[0-7]+)?|0b[0-1]+(?:\\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\\.[0-9A-Za-z]+)?)\\b|\\b[0-9]+(?:\\.[0-9]+)?\\b|\\b(?:true|false)\\b|'(?:[^'\\\\]|\\\\.)'|\"(?:[^\"\\\\]|\\\\.)*\"|\\b[A-Za-z_][A-Za-z_0-9]*\\b(?:\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b)*(?:\\s*<\\s*(?<rootType>(?:\\b(?:ptr|ref|const|unsigned|short|long|signed)\\b\\s*)*(?:(?:\\(\\s*(?:(?<param>(?:\\b[A-Za-z_][A-Za-z_0-9]*\\b\\s*:\\s*)?\\g<rootType>)\\s*(?:,\\s*\\g<param>)*,?)?\\s*\\)\\s*(?:=>|->)\\s*\\g<rootType>)|(?:\\(\\s*\\g<rootType>\\s*\\)(?:\\s*\\?)?)|(?:(?:\\b[A-Za-z_][A-Za-z_0-9]*\\b\\.)*\\b[A-Za-z_][A-Za-z_0-9]*\\b(?:\\s*<\\s*\\g<rootType>(?:\\s*,\\s*\\g<rootType>)*\\s*>)?))(?:\\s*\\?)?(?:\\s*\\|\\s*\\g<rootType>)?)(?:\\s*,\\s*\\g<rootType>)*\\s*,?\\s*>\\s*)?)(?:\\s*,\\s*\\g<attrParam>)*\\s*,?)?\\s*\\))?))\\s*)*)\\b(bitfield)\\b\\s*\\b([A-Za-z_][A-Za-z_0-9]*)\\b\\s*(?::\\s*(\\g<rootType>)\\s*)?\\{",
+      "beginCaptures": {
+        "1": {
+          "patterns": [
+            {
+              "include": "#attribute"
+            },
+            {
+              "name": "meta.bitfield.modifier.alta",
+              "match": "\\b(export)\\b",
+              "captures": {
+                "1": {
+                  "name": "storage.modifier.alta"
+                }
+              }
+            }
+          ]
+        },
+        "6": {
+          "name": "keyword.bitfield.alta"
+        },
+        "7": {
+          "name": "entity.name.bitfield.alta"
+        },
+        "8": {
+          "patterns": [
+            {
+              "include": "#type"
+            }
+          ]
+        }
+      },
+      "end": "\\}",
+      "patterns": [
+        {
+          "name": "meta.bitfield.member.alta",
+          "match": "([A-Za-z_][A-Za-z_0-9]*)\\s*(?::\\s*(?<rootType>(?:\\b(?:ptr|ref|const|unsigned|short|long|signed)\\b\\s*)*(?:(?:\\(\\s*(?:(?<param>(?:\\b[A-Za-z_][A-Za-z_0-9]*\\b\\s*:\\s*)?\\g<rootType>)\\s*(?:,\\s*\\g<param>)*,?)?\\s*\\)\\s*(?:=>|->)\\s*\\g<rootType>)|(?:\\(\\s*\\g<rootType>\\s*\\)(?:\\s*\\?)?)|(?:(?:\\b[A-Za-z_][A-Za-z_0-9]*\\b\\.)*\\b[A-Za-z_][A-Za-z_0-9]*\\b(?:\\s*<\\s*\\g<rootType>(?:\\s*,\\s*\\g<rootType>)*\\s*>)?))(?:\\s*\\?)?(?:\\s*\\|\\s*\\g<rootType>)?)\\s*)?=\\s*((?<number>\\b(?:0x[0-9A-Fa-f]+(?:\\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\\.[0-7]+)?|0b[0-1]+(?:\\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\\.[0-9A-Za-z]+)?|[0-9]+(?:\\.[0-9]+)?)\\b))(\\.\\.\\.?)(\\g<number>)",
+          "captures": {
+            "1": {
+              "name": "variable.other.member.alta"
+            },
+            "2": {
+              "patterns": [
+                {
+                  "include": "#type"
+                }
+              ]
+            },
+            "4": {
+              "patterns": [
+                {
+                  "include": "#number"
+                }
+              ]
+            },
+            "6": {
+              "name": "keyword.control.loop.range.alta"
+            },
+            "7": {
+              "patterns": [
+                {
+                  "include": "#number"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "enumeration-definition": {
+      "name": "meta.enumeration-definition.alta",
+      "begin": "((?:(?:\\b(?:export|literal)\\b|(?<attribute>(?:@(?:@)?)\\b(?:[A-Za-z_][A-Za-z_0-9]*)(?:\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b)*\\b(?:\\s*\\(\\s*(?:(?<attrParam>\\b(?:0x[0-9A-Fa-f]+(?:\\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\\.[0-7]+)?|0b[0-1]+(?:\\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\\.[0-9A-Za-z]+)?)\\b|\\b[0-9]+(?:\\.[0-9]+)?\\b|\\b(?:true|false)\\b|'(?:[^'\\\\]|\\\\.)'|\"(?:[^\"\\\\]|\\\\.)*\"|\\b[A-Za-z_][A-Za-z_0-9]*\\b(?:\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b)*(?:\\s*<\\s*(?<rootType>(?:\\b(?:ptr|ref|const|unsigned|short|long|signed)\\b\\s*)*(?:(?:\\(\\s*(?:(?<param>(?:\\b[A-Za-z_][A-Za-z_0-9]*\\b\\s*:\\s*)?\\g<rootType>)\\s*(?:,\\s*\\g<param>)*,?)?\\s*\\)\\s*(?:=>|->)\\s*\\g<rootType>)|(?:\\(\\s*\\g<rootType>\\s*\\)(?:\\s*\\?)?)|(?:(?:\\b[A-Za-z_][A-Za-z_0-9]*\\b\\.)*\\b[A-Za-z_][A-Za-z_0-9]*\\b(?:\\s*<\\s*\\g<rootType>(?:\\s*,\\s*\\g<rootType>)*\\s*>)?))(?:\\s*\\?)?(?:\\s*\\|\\s*\\g<rootType>)?)(?:\\s*,\\s*\\g<rootType>)*\\s*,?\\s*>\\s*)?)(?:\\s*,\\s*\\g<attrParam>)*\\s*,?)?\\s*\\))?))\\s*)*)\\b(enum)\\b\\s*\\b([A-Za-z_][A-Za-z_0-9]*)\\b\\s*:\\s*(\\g<rootType>)\\s*\\{",
+      "beginCaptures": {
+        "1": {
+          "patterns": [
+            {
+              "include": "#attribute"
+            },
+            {
+              "name": "meta.enumeration.modifier.alta",
+              "match": "\\b(export)\\b",
+              "captures": {
+                "1": {
+                  "name": "storage.modifier.alta"
+                }
+              }
+            }
+          ]
+        },
+        "6": {
+          "name": "keyword.enumeration.alta"
+        },
+        "7": {
+          "name": "entity.name.enumeration.alta"
+        },
+        "8": {
+          "patterns": [
+            {
+              "include": "#type"
+            }
+          ]
+        }
+      },
+      "end": "\\}",
+      "patterns": [
+        {
+          "name": "meta.enumeration.member.alta",
+          "begin": "\\b([A-Za-z_][A-Za-z_0-9]*)\\b\\s*=\\s*",
+          "beginCaptures": {
+            "1": {
+              "name": "variable.other.member.alta"
+            }
+          },
+          "end": ",|(?=\\})",
+          "patterns": [
+            {
+              "include": "#expression"
+            }
+          ]
+        },
+        {
+          "name": "meta.enumeration.member.alta",
+          "match": "\\b([A-Za-z_][A-Za-z_0-9]*)\\b",
+          "captures": {
+            "1": {
+              "name": "variable.other.member.alta"
+            }
+          }
+        }
+      ]
+    },
     "structure-definition": {
       "name": "meta.structure-definition.alta",
       "begin": "((?:(?:\\b(?:export|literal)\\b|(?<attribute>(?:@(?:@)?)\\b(?:[A-Za-z_][A-Za-z_0-9]*)(?:\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b)*\\b(?:\\s*\\(\\s*(?:(?<attrParam>\\b(?:0x[0-9A-Fa-f]+(?:\\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\\.[0-7]+)?|0b[0-1]+(?:\\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\\.[0-9A-Za-z]+)?)\\b|\\b[0-9]+(?:\\.[0-9]+)?\\b|\\b(?:true|false)\\b|'(?:[^'\\\\]|\\\\.)'|\"(?:[^\"\\\\]|\\\\.)*\"|\\b[A-Za-z_][A-Za-z_0-9]*\\b(?:\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b)*(?:\\s*<\\s*(?<rootType>(?:\\b(?:ptr|ref|const|unsigned|short|long|signed)\\b\\s*)*(?:(?:\\(\\s*(?:(?<param>(?:\\b[A-Za-z_][A-Za-z_0-9]*\\b\\s*:\\s*)?\\g<rootType>)\\s*(?:,\\s*\\g<param>)*,?)?\\s*\\)\\s*(?:=>|->)\\s*\\g<rootType>)|(?:\\(\\s*\\g<rootType>\\s*\\)(?:\\s*\\?)?)|(?:(?:\\b[A-Za-z_][A-Za-z_0-9]*\\b\\.)*\\b[A-Za-z_][A-Za-z_0-9]*\\b(?:\\s*<\\s*\\g<rootType>(?:\\s*,\\s*\\g<rootType>)*\\s*>)?))(?:\\s*\\?)?(?:\\s*\\|\\s*\\g<rootType>)?)(?:\\s*,\\s*\\g<rootType>)*\\s*,?\\s*>\\s*)?)(?:\\s*,\\s*\\g<attrParam>)*\\s*,?)?\\s*\\))?))\\s*)*)\\b(struct)\\b\\s*\\b([A-Za-z_][A-Za-z_0-9]*)\\b\\s*\\{",
@@ -1914,7 +2140,7 @@
       "patterns": [
         {
           "name": "meta.freeform-cherry-pick-import.alta",
-          "match": "\\b(import)\\b\\s*((?<import-item>\\b[A-Za-z_][A-Za-z_0-9]*\\b)(?:\\s*,\\s*\\g<import-item>)*\\s*,?)\\s*\\b(from)\\b\\s*(\"(?:[^\"\\\\]|\\\\.)*\")",
+          "match": "\\b(import)\\b\\s*((?<importItem>\\b[A-Za-z_][A-Za-z_0-9]*\\b(\\s*\\bas\\b\\s*[A-Za-z_][A-Za-z_0-9]*)?)(?:\\s*,\\s*\\g<importItem>)*\\s*,?)\\s*\\b(from)\\b\\s*(\"(?:[^\"\\\\]|\\\\.)*\")",
           "captures": {
             "1": {
               "name": "keyword.import.alta"
@@ -1922,15 +2148,26 @@
             "2": {
               "patterns": [
                 {
-                  "name": "variable.imported.alta",
-                  "match": "\\b[A-Za-z_][A-Za-z_0-9]*\\b"
+                  "name": "meta.import-item.alta",
+                  "match": "\\b([A-Za-z_][A-Za-z_0-9]*)\\b(\\s*\\b(as)\\b\\s*([A-Za-z_][A-Za-z_0-9]*))?",
+                  "captures": {
+                    "1": {
+                      "name": "variable.imported.alta"
+                    },
+                    "3": {
+                      "name": "keyword.import.as.alta"
+                    },
+                    "4": {
+                      "name": "variable.imported.alias.alta"
+                    }
+                  }
                 }
               ]
             },
-            "4": {
+            "5": {
               "name": "keyword.import.from.alta"
             },
-            "5": {
+            "6": {
               "patterns": [
                 {
                   "include": "#string"
@@ -1993,7 +2230,7 @@
     },
     "function-definition": {
       "name": "meta.function-definition.alta",
-      "begin": "((?:(?:(?:\\b(?:literal|export|generic)\\b)|(?<attribute>(?:@(?:@)?)\\b(?:[A-Za-z_][A-Za-z_0-9]*)(?:\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b)*\\b(?:\\s*\\(\\s*(?:(?<attrParam>\\b(?:0x[0-9A-Fa-f]+(?:\\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\\.[0-7]+)?|0b[0-1]+(?:\\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\\.[0-9A-Za-z]+)?)\\b|\\b[0-9]+(?:\\.[0-9]+)?\\b|\\b(?:true|false)\\b|'(?:[^'\\\\]|\\\\.)'|\"(?:[^\"\\\\]|\\\\.)*\"|\\b[A-Za-z_][A-Za-z_0-9]*\\b(?:\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b)*(?:\\s*<\\s*(?<rootType>(?:\\b(?:ptr|ref|const|unsigned|short|long|signed)\\b\\s*)*(?:(?:\\(\\s*(?:(?<param>(?:\\b[A-Za-z_][A-Za-z_0-9]*\\b\\s*:\\s*)?\\g<rootType>)\\s*(?:,\\s*\\g<param>)*,?)?\\s*\\)\\s*(?:=>|->)\\s*\\g<rootType>)|(?:\\(\\s*\\g<rootType>\\s*\\)(?:\\s*\\?)?)|(?:(?:\\b[A-Za-z_][A-Za-z_0-9]*\\b\\.)*\\b[A-Za-z_][A-Za-z_0-9]*\\b(?:\\s*<\\s*\\g<rootType>(?:\\s*,\\s*\\g<rootType>)*\\s*>)?))(?:\\s*\\?)?(?:\\s*\\|\\s*\\g<rootType>)?)(?:\\s*,\\s*\\g<rootType>)*\\s*,?\\s*>\\s*)?)(?:\\s*,\\s*\\g<attrParam>)*\\s*,?)?\\s*\\))?))\\s*)*)\\b(?<funcKeyword>function)\\b\\s*(?<funcName>[A-Za-z_][A-Za-z_0-9]*)\\s*(<\\s*\\b[A-Za-z_][A-Za-z_0-9]*\\b(?:\\s*,\\s*\\b[A-Za-z_][A-Za-z_0-9]*\\b)*\\s*,?\\s*>\\s*)?",
+      "begin": "((?:(?:(?:\\b(?:literal|export|generic|generator)\\b)|(?<attribute>(?:@(?:@)?)\\b(?:[A-Za-z_][A-Za-z_0-9]*)(?:\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b)*\\b(?:\\s*\\(\\s*(?:(?<attrParam>\\b(?:0x[0-9A-Fa-f]+(?:\\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\\.[0-7]+)?|0b[0-1]+(?:\\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\\.[0-9A-Za-z]+)?)\\b|\\b[0-9]+(?:\\.[0-9]+)?\\b|\\b(?:true|false)\\b|'(?:[^'\\\\]|\\\\.)'|\"(?:[^\"\\\\]|\\\\.)*\"|\\b[A-Za-z_][A-Za-z_0-9]*\\b(?:\\.\\b[A-Za-z_][A-Za-z_0-9]*\\b)*(?:\\s*<\\s*(?<rootType>(?:\\b(?:ptr|ref|const|unsigned|short|long|signed)\\b\\s*)*(?:(?:\\(\\s*(?:(?<param>(?:\\b[A-Za-z_][A-Za-z_0-9]*\\b\\s*:\\s*)?\\g<rootType>)\\s*(?:,\\s*\\g<param>)*,?)?\\s*\\)\\s*(?:=>|->)\\s*\\g<rootType>)|(?:\\(\\s*\\g<rootType>\\s*\\)(?:\\s*\\?)?)|(?:(?:\\b[A-Za-z_][A-Za-z_0-9]*\\b\\.)*\\b[A-Za-z_][A-Za-z_0-9]*\\b(?:\\s*<\\s*\\g<rootType>(?:\\s*,\\s*\\g<rootType>)*\\s*>)?))(?:\\s*\\?)?(?:\\s*\\|\\s*\\g<rootType>)?)(?:\\s*,\\s*\\g<rootType>)*\\s*,?\\s*>\\s*)?)(?:\\s*,\\s*\\g<attrParam>)*\\s*,?)?\\s*\\))?))\\s*)*)\\b(?<funcKeyword>function)\\b\\s*(?<funcName>[A-Za-z_][A-Za-z_0-9]*)\\s*(<\\s*\\b[A-Za-z_][A-Za-z_0-9]*\\b(?:\\s*,\\s*\\b[A-Za-z_][A-Za-z_0-9]*\\b)*\\s*,?\\s*>\\s*)?",
       "beginCaptures": {
         "1": {
           "patterns": [
@@ -2001,7 +2238,7 @@
               "include": "#attribute"
             },
             {
-              "match": "\\b(literal|export|generic)\\b",
+              "match": "\\b(literal|export|generic|generator)\\b",
               "captures": {
                 "1": {
                   "name": "keyword.modifier.alta"
@@ -2035,15 +2272,18 @@
         {
           "name": "meta.function.parameters.alta",
           "begin": "\\s*\\(",
-          "end": "\\)\\s*",
+          "end": "\\)\\s*(?:\\(\\s*(?<rootType>(?:\\b(?:ptr|ref|const|unsigned|short|long|signed)\\b\\s*)*(?:(?:\\(\\s*(?:(?<param>(?:\\b[A-Za-z_][A-Za-z_0-9]*\\b\\s*:\\s*)?\\g<rootType>)\\s*(?:,\\s*\\g<param>)*,?)?\\s*\\)\\s*(?:=>|->)\\s*\\g<rootType>)|(?:\\(\\s*\\g<rootType>\\s*\\)(?:\\s*\\?)?)|(?:(?:\\b[A-Za-z_][A-Za-z_0-9]*\\b\\.)*\\b[A-Za-z_][A-Za-z_0-9]*\\b(?:\\s*<\\s*\\g<rootType>(?:\\s*,\\s*\\g<rootType>)*\\s*>)?))(?:\\s*\\?)?(?:\\s*\\|\\s*\\g<rootType>)?)\\s*(\\.\\.\\.)?\\s*\\))?",
           "endCaptures": {
             "1": {
-              "name": "meta.function.return-type.alta",
+              "name": "meta.function.generator-parameter-type.alta",
               "patterns": [
                 {
                   "include": "#type"
                 }
               ]
+            },
+            "3": {
+              "name": "storage.modifier.variadic.alta"
             }
           },
           "patterns": [
@@ -2336,6 +2576,15 @@
         },
         "7": {
           "name": "storage.modifier.type.optional.alta"
+        }
+      }
+    },
+    "yield": {
+      "name": "meta.yield.alta",
+      "match": "\\b(yield)\\b",
+      "captures": {
+        "1": {
+          "name": "keyword.yield.alta"
         }
       }
     },
