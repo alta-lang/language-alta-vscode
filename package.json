@@ -2,7 +2,7 @@
   "name": "language-alta",
   "displayName": "Alta Language Support",
   "description": "Language support package for Alta",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "Ariel Abreu <facekapow@outlook.com>",
   "publisher": "alta-lang",
   "engines": {
@@ -39,5 +39,10 @@
   },
   "scripts": {
     "convert": "npx js-yaml syntaxes/alta.tmLanguage.yaml > syntaxes/alta.tmLanguage.json"
+  },
+  "icon": "images/icon.png",
+  "galleryBanner": {
+    "color": "#66d5ffff",
+    "theme": "light"
   }
 }

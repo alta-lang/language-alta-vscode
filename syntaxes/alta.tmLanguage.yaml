@@ -1,3 +1,5 @@
+# TODO: add captures for a lot more punctuation
+
 name: Alta
 patterns:
 - include: '#function-definition'
@@ -124,6 +126,19 @@ repository:
             name: entity.name.trait.end.alta
           3:
             name: entity.name.trait.section.alta
+      - match: '\b(TODO)\b(:)'
+        name: meta.docca.private.todo.alta
+        captures:
+          1:
+            name: entity.name.trait.todo.alta
+          2:
+            name: punctuation.colon.alta
+      - match: '\b(NOTE)\b(:)'
+        captures:
+          1:
+            name: entity.name.trait.note.alta
+          2:
+            name: punctuation.colon.alta
   pp-expression:
     match: '(?<pp-expr>\s*(?<pp-expr-first>\s*(?:(!|\bnot\b)\g<pp-expr>|"([^"]|\\")*"|\(\g<pp-expr>\)|\b[A-Za-z_][A-Za-z_0-9]*\b(\(\s*(\g<pp-expr>\s*(\s*,\s*\g<pp-expr>)*,?)?\s*\))?))\s*(?<pp-expr-second>(\|\||&&|!=|==)\g<pp-expr>)?\s*)'
     captures:
@@ -159,7 +174,10 @@ repository:
       beginCaptures:
         1:
           name: keyword.control.directive.return.alta
-      end: ';|$|\s'
+      end: '(;)|$|\s|(?=\})'
+      endCaptures:
+        1:
+          name: punctuation.semicolon.alta
       patterns:
       - include: '#expression'
     - include: '#type-alias'
@@ -195,8 +213,12 @@ repository:
       beginCaptures:
         1:
           name: keyword.export.alta
+        2:
+          name: punctuation.opening-brace.alta
       end: '(\})(?:\s*\b(from)\b\s*("(?:[^"\\]|\\.)*"))?'
       endCaptures:
+        1:
+          name: punctuation.closing-brace.alta
         2:
           name: keyword.export.from.alta
         3:
@@ -261,6 +283,7 @@ repository:
                 name: keyword.export.as.alta
               10:
                 name: variable.exported.alias.alta
+    - include: '#comment'
   type-alias:
     name: meta.type-alias.alta
     match: '((?:(?:\b(?:export)\b)\s*)*)\b(type)\b\s*\b([A-Za-z_][A-Za-z_0-9]*)\b\s*=\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)'
@@ -290,18 +313,24 @@ repository:
     end: ';|$|\s'
     patterns:
     - include: '#expression'
+    - include: '#comment'
   try-catch:
     patterns:
     - name: meta.try.alta
-      begin: '\b(try)\b\s*\{'
+      begin: '\b(try)\b\s*(\{)'
       beginCaptures:
         1:
           name: keyword.control.try.alta
-      end: '\}'
+        2:
+          name: punctuation.opening-brace.alta
+      end: '(\})'
+      endCaptures:
+        1:
+          name: punctuation.closing-brace.alta
       patterns:
       - include: '#statements'
     - name: meta.catch.alta
-      begin: '\b(catch)\b\s*\b([A-Za-z_][A-Za-z_0-9]*)\b\s*:\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)\s*\{'
+      begin: '\b(catch)\b\s*\b([A-Za-z_][A-Za-z_0-9]*)\b\s*:\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)\s*(\{)'
       beginCaptures:
         1:
           name: keyword.control.catch.alta
@@ -310,17 +339,27 @@ repository:
         3:
           patterns:
           - include: '#type'
-      end: '\}'
+        4:
+          name: punctuation.opening-brace.alta
+      end: '(\})'
+      endCaptures:
+        1:
+          name: punctuation.closing-brace.alta
       patterns:
       - include: '#statements'
     - name: meta.catch.ultimatum.alta
-      begin: '\b(catch)\b\s*\b(all)\b\s*\{'
+      begin: '\b(catch)\b\s*\b(all)\b\s*(\{)'
       beginCaptures:
         1:
           name: keyword.control.catch.alta
         2:
           name: keyword.all.alta
-      end: '\}'
+        3:
+          name: punctuation.opening-brace.alta
+      end: '(\})'
+      endCaptures:
+        1:
+          name: punctuation.closing-brace.alta
       patterns:
       - include: '#statements'
   while-loop:
@@ -338,43 +377,59 @@ repository:
   for-loop:
     patterns:
     - name: meta.classic-for-loop.alta
-      begin: '\b(for)\b\s*\(\s*(.*)\s*;\s*(.*)\s*;\s*(.*)\s*\)\s*\{'
+      begin: '\b(for)\b\s*(\()\s*(.*)\s*;\s*(.*)\s*;\s*(.*)\s*\)\s*(\{)'
       beginCaptures:
         1:
           name: keyword.control.loop.for.alta
         2:
-          patterns:
-          - include: '#expression'
+          name: punctuation.opening-parenthesis.alta
         3:
           patterns:
           - include: '#expression'
         4:
           patterns:
           - include: '#expression'
-      end: '\}'
+        5:
+          patterns:
+          - include: '#expression'
+        6:
+          name: punctuation.closing-parenthesis.alta
+        7:
+          name: punctuation.opening-brace.alta
+      end: '(\})'
+      endCaptures:
+        1:
+          name: punctuation.closing-brace.alta
       patterns:
       - include: '#statements'
     - name: meta.ranged-for-loop.alta
-      begin: '\b(for)\b\s*([A-Za-z_][A-Za-z_0-9]*)\s*:\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)\s*\b(in)\b\s*((?:[^\.:]|\.(?!\.)|:(?!:))+)(?:(\.\.\.?|:::?)(.+))?\s*\{'
+      begin: '\b(for)\b\s*([A-Za-z_][A-Za-z_0-9]*)\s*(:)\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)\s*\b(in)\b\s*((?:[^\.:]|\.(?!\.)|:(?!:))+)(?:(\.\.\.?|:::?)(.+))?\s*(\{)'
       beginCaptures:
         1:
           name: keyword.control.loop.for.alta
         2:
           name: variable.counter.alta
         3:
+          name: punctuation.colon.alta
+        4:
           patterns:
           - include: '#type'
-        5:
-          name: keyword.control.loop.in.alta
         6:
-          patterns:
-          - include: '#expression'
+          name: keyword.control.loop.in.alta
         7:
-          name: keyword.control.loop.range.alta
-        8:
           patterns:
           - include: '#expression'
-      end: '\}'
+        8:
+          name: keyword.control.loop.range.alta
+        9:
+          patterns:
+          - include: '#expression'
+        10:
+          name: punctuation.opening-brace.alta
+      end: '(\})'
+      endCaptures:
+        1:
+          name: punctuation.closing-brace.alta
       patterns:
       - include: '#statements'
   conditional:
@@ -393,17 +448,14 @@ repository:
       patterns:
       - include: '#statements'
     - name: meta.conditional.ultimatum.alta
-      begin: '\b(else)\b\s*\{'
-      beginCaptures:
+      match: '\b(else)\b'
+      captures:
         1:
           name: keyword.control.conditional.else.alta
-      end: '\}'
-      patterns:
-      - include: '#statements'
   expression:
     patterns:
     - name: meta.mega-lambda-expression.alta
-      begin: '((?<expr>(?<firstExpr>(?:(?<varDef>((?:\b(?:export|literal)\b\s*)*)\b(var|let)\b\s*\b([A-Za-z_][A-Za-z_0-9]*)\b\s*(?::\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)\s*)?=\s*)\g<expr>)|(?:((?:\b(?:export|literal)\b\s*)*)\b(var|let)\b\s*\b([A-Za-z_][A-Za-z_0-9]*)\b\s*(?::\s*\g<rootType>\s*))|\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?)\b|\b[0-9]+(?:\.[0-9]+)?\b|\b(?:true|false)\b|''(?:[^''\\]|\\.)''|"(?:[^"\\]|\\.)*"|\bsizeof\b\s*\g<rootType>|\bnew\b\s*(\*|\bpersistent\b)?\s*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*\g<rootType>(\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?|(\$?\b[A-Za-z_][A-Za-z_0-9]*\b|\$)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*\g<rootType>(\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?|(?:\(\g<expr>\)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*)|(?:\+\+|\-\-|!|~|\-|&|\*)\s*\g<expr>)\s*(?<secondExpr>\.\b[A-Za-z_][A-Za-z_0-9]*\b|(\+=|\-=|\*=|/=|&=|\|=|^=|%=|==|!=|\+|\-|\*|/|%|&&|\|\||&|\||^|<=|>=|<|>)\s*\g<expr>|(?:\+\+|\-\-)|\??\(\s*(([A-Za-z_][A-Za-z_0-9]*\s*:\s*)?\g<expr>\s*(?:\s*,\s*([A-Za-z_][A-Za-z_0-9]*\s*:\s*)?\g<expr>)*\s*,?)?\s*\)\s*\g<secondExpr>?|\[\s*\g<expr>\s*\]\s*\g<secondExpr>?|\?\s*\g<expr>\s*:\s*\g<expr>|(?:(?<attribute>(?:@(?:@)?)\b(?:[A-Za-z_][A-Za-z_0-9]*)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*\b(?:\s*\(\s*(?:(?<attrParam>\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?)\b|\b[0-9]+(?:\.[0-9]+)?\b|\b(?:true|false)\b|''(?:[^''\\]|\\.)''|"(?:[^"\\]|\\.)*"|\b[A-Za-z_][A-Za-z_0-9]*\b(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?)(?:\s*,\s*\g<attrParam>)*\s*,?)?\s*\))?))*\s*=\s*\g<expr>|\bas\b\s*\g<rootType>(\s*\g<secondExpr>)?|\binstanceof\b\s*\g<rootType>)?))?\s*(\(\s*((?:(?:[A-Za-z_][A-Za-z_0-9]*\s*:\s*)?\g<expr>\s*,\s*)*(?:[A-Za-z_][A-Za-z_0-9]*\s*:\s*)?)|\g<varDef>)\s*((?:\g<attribute>\s*)*)\s*\(\s*((?:(?<lambdaParam>\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*\g<rootType>)(?:\s*,\s*\g<lambdaParam>)*\s*,?))?\s*\)\s*(=>)\s*(\g<rootType>)\s*\{'
+      begin: '((?<expr>(?<firstExpr>(?:(?<varDef>((?:\b(?:export|literal)\b\s*)*)\b(var|let)\b\s*\b([A-Za-z_][A-Za-z_0-9]*)\b\s*(?::\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)\s*)?=\s*)\g<expr>)|(?:((?:\b(?:export|literal)\b\s*)*)\b(var|let)\b\s*\b([A-Za-z_][A-Za-z_0-9]*)\b\s*(?::\s*\g<rootType>\s*))|\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?)\b|\b[0-9]+(?:\.[0-9]+)?\b|\b(?:true|false)\b|''(?:[^''\\]|\\.)''|"(?:[^"\\]|\\.)*"|\bsizeof\b\s*\g<rootType>|\bnew\b\s*(\*|\bpersistent\b)?\s*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*\g<rootType>(\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?|(\$?\b[A-Za-z_][A-Za-z_0-9]*\b|\$)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*\g<rootType>(\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?|(?:\(\g<expr>\)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*)|(?:\+\+|\-\-|!|~|\-|&|\*)\s*\g<expr>)\s*(?<secondExpr>\.\b[A-Za-z_][A-Za-z_0-9]*\b|(\+=|\-=|\*=|/=|&=|\|=|^=|%=|==|!=|\+|\-|\*|/|%|&&|\|\||&|\||^|<=|>=|<|>)\s*\g<expr>|(?:\+\+|\-\-)|\??\(\s*(([A-Za-z_][A-Za-z_0-9]*\s*:\s*)?\g<expr>\s*(?:\s*,\s*([A-Za-z_][A-Za-z_0-9]*\s*:\s*)?\g<expr>)*\s*,?)?\s*\)\s*\g<secondExpr>?|\[\s*\g<expr>\s*\]\s*\g<secondExpr>?|\?\s*\g<expr>\s*:\s*\g<expr>|(?:(?<attribute>(?:@(?:@)?)\b(?:[A-Za-z_][A-Za-z_0-9]*)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*\b(?:\s*\(\s*(?:(?<attrParam>\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?)\b|\b[0-9]+(?:\.[0-9]+)?\b|\b(?:true|false)\b|''(?:[^''\\]|\\.)''|"(?:[^"\\]|\\.)*"|\b[A-Za-z_][A-Za-z_0-9]*\b(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?)(?:\s*,\s*\g<attrParam>)*\s*,?)?\s*\))?))*\s*=\s*\g<expr>|\bas\b\s*\g<rootType>(\s*\g<secondExpr>)?|\binstanceof\b\s*\g<rootType>)?))?\s*(\(\s*((?:(?:[A-Za-z_][A-Za-z_0-9]*\s*:\s*)?\g<expr>\s*,\s*)*(?:[A-Za-z_][A-Za-z_0-9]*\s*:\s*)?)|\g<varDef>|)\s*((?:\g<attribute>\s*)*)\s*\(\s*((?:(?<lambdaParam>\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*\g<rootType>)(?:\s*,\s*\g<lambdaParam>)*\s*,?))?\s*\)\s*(=>)\s*(\g<rootType>)\s*(\{)'
       beginCaptures:
         1:
           patterns:
@@ -447,23 +499,27 @@ repository:
         31:
           patterns:
           - include: '#type'
-      end: '\}\s*((\s*,\s*(?:[A-Za-z_][A-Za-z_0-9]*\s*:\s*)?(?<expr>(?<firstExpr>(?:((?:\b(?:export|literal)\b\s*)*)\b(var|let)\b\s*\b([A-Za-z_][A-Za-z_0-9]*)\b\s*(?::\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)\s*)?=\s*\g<expr>)|(?:((?:\b(?:export|literal)\b\s*)*)\b(var|let)\b\s*\b([A-Za-z_][A-Za-z_0-9]*)\b\s*(?::\s*\g<rootType>\s*))|\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?)\b|\b[0-9]+(?:\.[0-9]+)?\b|\b(?:true|false)\b|''(?:[^''\\]|\\.)''|"(?:[^"\\]|\\.)*"|\bsizeof\b\s*\g<rootType>|\bnew\b\s*(\*|\bpersistent\b)?\s*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*\g<rootType>(\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?|(\$?\b[A-Za-z_][A-Za-z_0-9]*\b|\$)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*\g<rootType>(\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?|(?:\(\g<expr>\)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*)|(?:\+\+|\-\-|!|~|\-|&|\*)\s*\g<expr>)\s*(?<secondExpr>\.\b[A-Za-z_][A-Za-z_0-9]*\b|(\+=|\-=|\*=|/=|&=|\|=|^=|%=|==|!=|\+|\-|\*|/|%|&&|\|\||&|\||^|<=|>=|<|>)\s*\g<expr>|(?:\+\+|\-\-)|\??\(\s*(([A-Za-z_][A-Za-z_0-9]*\s*:\s*)?\g<expr>\s*(?:\s*,\s*([A-Za-z_][A-Za-z_0-9]*\s*:\s*)?\g<expr>)*\s*,?)?\s*\)\s*\g<secondExpr>?|\[\s*\g<expr>\s*\]\s*\g<secondExpr>?|\?\s*\g<expr>\s*:\s*\g<expr>|(?:(?<attribute>(?:@(?:@)?)\b(?:[A-Za-z_][A-Za-z_0-9]*)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*\b(?:\s*\(\s*(?:(?<attrParam>\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?)\b|\b[0-9]+(?:\.[0-9]+)?\b|\b(?:true|false)\b|''(?:[^''\\]|\\.)''|"(?:[^"\\]|\\.)*"|\b[A-Za-z_][A-Za-z_0-9]*\b(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?)(?:\s*,\s*\g<attrParam>)*\s*,?)?\s*\))?))*\s*=\s*\g<expr>|\bas\b\s*\g<rootType>(\s*\g<secondExpr>)?|\binstanceof\b\s*\g<rootType>)?))*)\s*,?\s*(?:\)\s*(\g<secondExpr>)?)?'
+        32:
+          name: punctuation.opening-brace.alta
+      end: '(\})\s*((\s*,\s*(?:[A-Za-z_][A-Za-z_0-9]*\s*:\s*)?(?<expr>(?<firstExpr>(?:((?:\b(?:export|literal)\b\s*)*)\b(var|let)\b\s*\b([A-Za-z_][A-Za-z_0-9]*)\b\s*(?::\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)\s*)?=\s*\g<expr>)|(?:((?:\b(?:export|literal)\b\s*)*)\b(var|let)\b\s*\b([A-Za-z_][A-Za-z_0-9]*)\b\s*(?::\s*\g<rootType>\s*))|\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?)\b|\b[0-9]+(?:\.[0-9]+)?\b|\b(?:true|false)\b|''(?:[^''\\]|\\.)''|"(?:[^"\\]|\\.)*"|\bsizeof\b\s*\g<rootType>|\bnew\b\s*(\*|\bpersistent\b)?\s*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*\g<rootType>(\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?|(\$?\b[A-Za-z_][A-Za-z_0-9]*\b|\$)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*\g<rootType>(\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?|(?:\(\g<expr>\)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*)|(?:\+\+|\-\-|!|~|\-|&|\*)\s*\g<expr>)\s*(?<secondExpr>\.\b[A-Za-z_][A-Za-z_0-9]*\b|(\+=|\-=|\*=|/=|&=|\|=|^=|%=|==|!=|\+|\-|\*|/|%|&&|\|\||&|\||^|<=|>=|<|>)\s*\g<expr>|(?:\+\+|\-\-)|\??\(\s*(([A-Za-z_][A-Za-z_0-9]*\s*:\s*)?\g<expr>\s*(?:\s*,\s*([A-Za-z_][A-Za-z_0-9]*\s*:\s*)?\g<expr>)*\s*,?)?\s*\)\s*\g<secondExpr>?|\[\s*\g<expr>\s*\]\s*\g<secondExpr>?|\?\s*\g<expr>\s*:\s*\g<expr>|(?:(?<attribute>(?:@(?:@)?)\b(?:[A-Za-z_][A-Za-z_0-9]*)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*\b(?:\s*\(\s*(?:(?<attrParam>\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?)\b|\b[0-9]+(?:\.[0-9]+)?\b|\b(?:true|false)\b|''(?:[^''\\]|\\.)''|"(?:[^"\\]|\\.)*"|\b[A-Za-z_][A-Za-z_0-9]*\b(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?)(?:\s*,\s*\g<attrParam>)*\s*,?)?\s*\))?))*\s*=\s*\g<expr>|\bas\b\s*\g<rootType>(\s*\g<secondExpr>)?|\binstanceof\b\s*\g<rootType>)?))*)\s*,?\s*(?:\)\s*(\g<secondExpr>)?)?'
       endCaptures:
         1:
+          name: punctuation.closing-brace.alta
+        2:
           patterns:
           - match: '([A-Za-z_][A-Za-z_0-9]*)\s*:\s*'
             captures:
               1:
                 name: variable.parameter.alta
           - include: '#expression'
-        25:
+        26:
           patterns:
           - include: '#expression'
           - include: '#expr-matches'
       patterns:
       - include: '#statements'
     - name: meta.mega-function-call.alta
-      begin: '((?<expr>(?<firstExpr>(?:(?<varDef>((?:\b(?:export|literal)\b\s*)*)\b(var|let)\b\s*\b([A-Za-z_][A-Za-z_0-9]*)\b\s*(?::\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)\s*)?=\s*)\g<expr>)|(?:((?:\b(?:export|literal)\b\s*)*)\b(var|let)\b\s*\b([A-Za-z_][A-Za-z_0-9]*)\b\s*(?::\s*\g<rootType>\s*))|\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?)\b|\b[0-9]+(?:\.[0-9]+)?\b|\b(?:true|false)\b|''(?:[^''\\]|\\.)''|"(?:[^"\\]|\\.)*"|\bsizeof\b\s*\g<rootType>|\bnew\b\s*(\*|\bpersistent\b)?\s*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*\g<rootType>(\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?|(?:\s*\byield\b\s*\g<expr>\s*)|(\$?\b[A-Za-z_][A-Za-z_0-9]*\b|\$)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*\g<rootType>(\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?|(?:\(\g<expr>\)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*)|(?:\+\+|\-\-|!|~|\-|&|\*)\s*\g<expr>)\s*(?<secondExpr>\.\b[A-Za-z_][A-Za-z_0-9]*\b|(\+=|\-=|\*=|/=|&=|\|=|^=|%=|==|!=|\+|\-|\*|/|%|&&|\|\||&|\||^|<=|>=|<|>)\s*\g<expr>|(?:\+\+|\-\-)|\??\(\s*(([A-Za-z_][A-Za-z_0-9]*\s*:\s*)?\g<expr>\s*(?:\s*,\s*([A-Za-z_][A-Za-z_0-9]*\s*:\s*)?\g<expr>)*\s*,?)?\s*\)\s*\g<secondExpr>?|\[\s*\g<expr>\s*\]\s*\g<secondExpr>?|\?\s*\g<expr>\s*:\s*\g<expr>|(?:(?<attribute>(?:@(?:@)?)\b(?:[A-Za-z_][A-Za-z_0-9]*)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*\b(?:\s*\(\s*(?:(?<attrParam>\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?)\b|\b[0-9]+(?:\.[0-9]+)?\b|\b(?:true|false)\b|''(?:[^''\\]|\\.)''|"(?:[^"\\]|\\.)*"|\b[A-Za-z_][A-Za-z_0-9]*\b(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?)(?:\s*,\s*\g<attrParam>)*\s*,?)?\s*\))?))*\s*=\s*\g<expr>|\bas\b\s*\g<rootType>(\s*\g<secondExpr>)?|\binstanceof\b\s*\g<rootType>)?))?\s*(\?)?\s*\(\s*([A-Za-z_][A-Za-z_0-9]*\s*:\s*)?'
+      begin: '((?<expr>(?<firstExpr>(?:(?<varDef>((?:\b(?:export|literal)\b\s*)*)\b(var|let)\b\s*\b([A-Za-z_][A-Za-z_0-9]*)\b\s*(?::\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)\s*)?=\s*)\g<expr>)|(?:((?:\b(?:export|literal)\b\s*)*)\b(var|let)\b\s*\b([A-Za-z_][A-Za-z_0-9]*)\b\s*(?::\s*\g<rootType>\s*))|\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?)\b|\b[0-9]+(?:\.[0-9]+)?\b|\b(?:true|false)\b|''(?:[^''\\]|\\.)''|"(?:[^"\\]|\\.)*"|\bsizeof\b\s*\g<rootType>|\bnew\b\s*(\*|\bpersistent\b)?\s*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*\g<rootType>(\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?|(?:\s*\byield\b\s*(?:\g<expr>\s*)?)|(?:\s*\bawait\b\s*\g<expr>\s*)|(\$?\b[A-Za-z_][A-Za-z_0-9]*\b|\$)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*\g<rootType>(\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?|(?:\(\g<expr>\)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*)|(?:\+\+|\-\-|!|~|\-|&|\*)\s*\g<expr>)\s*(?<secondExpr>\.\b[A-Za-z_][A-Za-z_0-9]*\b|(\+=|\-=|\*=|/=|&=|\|=|^=|%=|==|!=|\+|\-|\*|/|%|&&|\|\||&|\||^|<=|>=|<|>)\s*\g<expr>|(?:\+\+|\-\-)|\??\(\s*(([A-Za-z_][A-Za-z_0-9]*\s*:\s*)?\g<expr>\s*(?:\s*,\s*([A-Za-z_][A-Za-z_0-9]*\s*:\s*)?\g<expr>)*\s*,?)?\s*\)\s*\g<secondExpr>?|\[\s*\g<expr>\s*\]\s*\g<secondExpr>?|\?\s*\g<expr>\s*:\s*\g<expr>|(?:(?<attribute>(?:@(?:@)?)\b(?:[A-Za-z_][A-Za-z_0-9]*)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*\b(?:\s*\(\s*(?:(?<attrParam>\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?)\b|\b[0-9]+(?:\.[0-9]+)?\b|\b(?:true|false)\b|''(?:[^''\\]|\\.)''|"(?:[^"\\]|\\.)*"|\b[A-Za-z_][A-Za-z_0-9]*\b(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?)(?:\s*,\s*\g<attrParam>)*\s*,?)?\s*\))?))*\s*=\s*\g<expr>|\bas\b\s*\g<rootType>(\s*\g<secondExpr>)?|\binstanceof\b\s*\g<rootType>)?))?\s*(\?)?\s*(\()\s*([A-Za-z_][A-Za-z_0-9]*\s*:\s*)?'
       beginCaptures:
         1:
           patterns:
@@ -471,25 +527,31 @@ repository:
         25:
           name: storage.modifier.optional.alta
         26:
+          name: punctuation.opening-parenthesis.alta
+        27:
           patterns:
           - match: '([A-Za-z_][A-Za-z_0-9]*)\s*:\s*'
             captures:
               1:
                 name: variable.parameter.alta
-      end: '\)\s*((?<secondExpr>\.\b[A-Za-z_][A-Za-z_0-9]*\b|(\+=|\-=|\*=|/=|&=|\|=|^=|%=|==|!=|\+|\-|\*|/|%|&&|\|\||&|\||^|<=|>=|<|>)\s*(?<expr>(?<firstExpr>(?:((?:\b(?:export|literal)\b\s*)*)\b(var|let)\b\s*\b([A-Za-z_][A-Za-z_0-9]*)\b\s*(?::\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)\s*)?=\s*\g<expr>)|(?:((?:\b(?:export|literal)\b\s*)*)\b(var|let)\b\s*\b([A-Za-z_][A-Za-z_0-9]*)\b\s*(?::\s*\g<rootType>\s*))|\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?)\b|\b[0-9]+(?:\.[0-9]+)?\b|\b(?:true|false)\b|''(?:[^''\\]|\\.)''|"(?:[^"\\]|\\.)*"|\bsizeof\b\s*\g<rootType>|\bnew\b\s*(\*|\bpersistent\b)?\s*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*\g<rootType>(\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?|(\$?\b[A-Za-z_][A-Za-z_0-9]*\b|\$)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*\g<rootType>(\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?|(?:\(\g<expr>\)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*)|(?:\+\+|\-\-|!|~|\-|&|\*)\s*\g<expr>)\s*)|(?:\+\+|\-\-)|\??\(\s*(([A-Za-z_][A-Za-z_0-9]*\s*:\s*)?\g<expr>\s*(?:\s*,\s*([A-Za-z_][A-Za-z_0-9]*\s*:\s*)?\g<expr>)*\s*,?)?\s*\)\s*\g<secondExpr>?|\[\s*\g<expr>\s*\]\s*\g<secondExpr>?|\?\s*\g<expr>\s*:\s*\g<expr>|(?:(?<attribute>(?:@(?:@)?)\b(?:[A-Za-z_][A-Za-z_0-9]*)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*\b(?:\s*\(\s*(?:(?<attrParam>\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?)\b|\b[0-9]+(?:\.[0-9]+)?\b|\b(?:true|false)\b|''(?:[^''\\]|\\.)''|"(?:[^"\\]|\\.)*"|\b[A-Za-z_][A-Za-z_0-9]*\b(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?)(?:\s*,\s*\g<attrParam>)*\s*,?)?\s*\))?))*\s*=\s*\g<expr>|\bas\b\s*\g<rootType>(\s*\g<secondExpr>)?|\binstanceof\b\s*\g<rootType>)?)?'
+      end: '(\))\s*((?<secondExpr>\.\b[A-Za-z_][A-Za-z_0-9]*\b|(\+=|\-=|\*=|/=|&=|\|=|^=|%=|==|!=|\+|\-|\*|/|%|&&|\|\||&|\||^|<=|>=|<|>)\s*(?<expr>(?<firstExpr>(?:((?:\b(?:export|literal)\b\s*)*)\b(var|let)\b\s*\b([A-Za-z_][A-Za-z_0-9]*)\b\s*(?::\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)\s*)?=\s*\g<expr>)|(?:((?:\b(?:export|literal)\b\s*)*)\b(var|let)\b\s*\b([A-Za-z_][A-Za-z_0-9]*)\b\s*(?::\s*\g<rootType>\s*))|\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?)\b|\b[0-9]+(?:\.[0-9]+)?\b|\b(?:true|false)\b|''(?:[^''\\]|\\.)''|"(?:[^"\\]|\\.)*"|\bsizeof\b\s*\g<rootType>|\bnew\b\s*(\*|\bpersistent\b)?\s*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*\g<rootType>(\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?|(\$?\b[A-Za-z_][A-Za-z_0-9]*\b|\$)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*\g<rootType>(\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?|(?:\(\g<expr>\)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*)|(?:\+\+|\-\-|!|~|\-|&|\*)\s*\g<expr>)\s*)|(?:\+\+|\-\-)|\??\(\s*(([A-Za-z_][A-Za-z_0-9]*\s*:\s*)?\g<expr>\s*(?:\s*,\s*([A-Za-z_][A-Za-z_0-9]*\s*:\s*)?\g<expr>)*\s*,?)?\s*\)\s*\g<secondExpr>?|\[\s*\g<expr>\s*\]\s*\g<secondExpr>?|\?\s*\g<expr>\s*:\s*\g<expr>|(?:(?<attribute>(?:@(?:@)?)\b(?:[A-Za-z_][A-Za-z_0-9]*)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*\b(?:\s*\(\s*(?:(?<attrParam>\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?)\b|\b[0-9]+(?:\.[0-9]+)?\b|\b(?:true|false)\b|''(?:[^''\\]|\\.)''|"(?:[^"\\]|\\.)*"|\b[A-Za-z_][A-Za-z_0-9]*\b(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?)(?:\s*,\s*\g<attrParam>)*\s*,?)?\s*\))?))*\s*=\s*\g<expr>|\bas\b\s*\g<rootType>(\s*\g<secondExpr>)?|\binstanceof\b\s*\g<rootType>)?)?'
       endCaptures:
         1:
+          name: punctuation.closing-parenthesis.alta
+        2:
           patterns:
           - include: '#expression'
           - include: '#expr-matches'
       patterns:
-      - match: '([A-Za-z_][A-Za-z_0-9]*)\s*:\s*'
+      - match: '([A-Za-z_][A-Za-z_0-9]*)\s*(:)\s*'
         captures:
           1:
             name: variable.parameter.alta
+          2:
+            name: punctuation.colon.alta
       - include: '#expression'
     - name: meta.mega-expression.alta
-      match: '(?<expr>(?<firstExpr>(?:((?:\b(?:export|literal)\b\s*)*)\b(var|let)\b\s*\b([A-Za-z_][A-Za-z_0-9]*)\b\s*(?::\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)\s*)?=\s*\g<expr>)|(?:((?:\b(?:export|literal)\b\s*)*)\b(var|let)\b\s*\b([A-Za-z_][A-Za-z_0-9]*)\b\s*(?::\s*\g<rootType>\s*))|\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?)\b|\b[0-9]+(?:\.[0-9]+)?\b|\b(?:true|false)\b|''(?:[^''\\]|\\.)''|"(?:[^"\\]|\\.)*"|\bsizeof\b\s*\g<rootType>|\bnew\b\s*(\*|\bpersistent\b)?\s*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*\g<rootType>(\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?|(?:\s*\byield\bs*g<expr>\s*)|(\$?\b[A-Za-z_][A-Za-z_0-9]*\b|\$)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*\g<rootType>(\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?|(?:\(\g<expr>\)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*)|(?:\+\+|\-\-|!|~|\-|&|\*)\s*\g<expr>)\s*(?<secondExpr>\.\b[A-Za-z_][A-Za-z_0-9]*\b|(\+=|\-=|\*=|/=|&=|\|=|^=|%=|==|!=|\+|\-|\*|/|%|&&|\|\||&|\||^|<=|>=|<|>)\s*\g<expr>|(?:\+\+|\-\-)|\??\(\s*(([A-Za-z_][A-Za-z_0-9]*\s*:\s*)?\g<expr>\s*(?:\s*,\s*([A-Za-z_][A-Za-z_0-9]*\s*:\s*)?\g<expr>)*\s*,?)?\s*\)\s*\g<secondExpr>?|\[\s*\g<expr>\s*\]\s*\g<secondExpr>?|\?\s*\g<expr>\s*:\s*\g<expr>|(?:(?<attribute>(?:@(?:@)?)\b(?:[A-Za-z_][A-Za-z_0-9]*)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*\b(?:\s*\(\s*(?:(?<attrParam>\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?)\b|\b[0-9]+(?:\.[0-9]+)?\b|\b(?:true|false)\b|''(?:[^''\\]|\\.)''|"(?:[^"\\]|\\.)*"|\b[A-Za-z_][A-Za-z_0-9]*\b(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?)(?:\s*,\s*\g<attrParam>)*\s*,?)?\s*\))?))*\s*=\s*\g<expr>|\bas\b\s*\g<rootType>(\s*\g<secondExpr>)?|\binstanceof\b\s*\g<rootType>)?)'
+      match: '(?<expr>(?<firstExpr>(?:((?:\b(?:export|literal)\b\s*)*)\b(var|let)\b\s*\b([A-Za-z_][A-Za-z_0-9]*)\b\s*(?::\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)\s*)?=\s*\g<expr>)|(?:((?:\b(?:export|literal)\b\s*)*)\b(var|let)\b\s*\b([A-Za-z_][A-Za-z_0-9]*)\b\s*(?::\s*\g<rootType>\s*))|\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?)\b|\b[0-9]+(?:\.[0-9]+)?\b|\b(?:true|false)\b|''(?:[^''\\]|\\.)''|"(?:[^"\\]|\\.)*"|\bsizeof\b\s*\g<rootType>|\bnew\b\s*(\*|\bpersistent\b)?\s*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*\g<rootType>(\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?|(?:\s*\byield\b\s*(?:\g<expr>\s*)?)|(?:\s*\bawait\b\s*\g<expr>\s*)|(\$?\b[A-Za-z_][A-Za-z_0-9]*\b|\$)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*\g<rootType>(\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?|(?:\(\g<expr>\)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*)|(?:\+\+|\-\-|!|~|\-|&|\*)\s*\g<expr>)\s*(?<secondExpr>\.\b[A-Za-z_][A-Za-z_0-9]*\b|(\+=|\-=|\*=|/=|&=|\|=|^=|%=|==|!=|\+|\-|\*|/|%|&&|\|\||&|\||^|<=|>=|<|>)\s*\g<expr>|(?:\+\+|\-\-)|\??\(\s*(([A-Za-z_][A-Za-z_0-9]*\s*:\s*)?\g<expr>\s*(?:\s*,\s*([A-Za-z_][A-Za-z_0-9]*\s*:\s*)?\g<expr>)*\s*,?)?\s*\)\s*\g<secondExpr>?|\[\s*\g<expr>\s*\]\s*\g<secondExpr>?|\?\s*\g<expr>\s*:\s*\g<expr>|(?:(?<attribute>(?:@(?:@)?)\b(?:[A-Za-z_][A-Za-z_0-9]*)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*\b(?:\s*\(\s*(?:(?<attrParam>\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?)\b|\b[0-9]+(?:\.[0-9]+)?\b|\b(?:true|false)\b|''(?:[^''\\]|\\.)''|"(?:[^"\\]|\\.)*"|\b[A-Za-z_][A-Za-z_0-9]*\b(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?)(?:\s*,\s*\g<attrParam>)*\s*,?)?\s*\))?))*\s*=\s*\g<expr>|\bas\b\s*\g<rootType>(\s*\g<secondExpr>)?|\binstanceof\b\s*\g<rootType>)?)'
       captures:
         1:
           patterns:
@@ -499,10 +561,12 @@ repository:
   func-call-exprs:
     patterns:
     - name: meta.method-call.alta
-      begin: '((?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)+)(?:\b([A-Za-z_][A-Za-z_0-9]*)\b)(\s*<\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)(\s*,\s*\g<rootType>)*\s*,?\s*>)?(\?)?\s*\(\s*(?:([A-Za-z_][A-Za-z_0-9]*)\s*:\s*)?'
+      begin: '((?:\$?\b[A-Za-z_][A-Za-z_0-9]*\b\.)+)(?:\b([A-Za-z_][A-Za-z_0-9]*)\b)(\s*<\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)(\s*,\s*\g<rootType>)*\s*,?\s*>)?(\?)?\s*(\()\s*(?:([A-Za-z_][A-Za-z_0-9]*)\s*:\s*)?'
       beginCaptures:
         1:
           patterns:
+          - name: variable.language.special.alta
+            match: '\$\b[A-Za-z_][A-Za-z_0-9]*\b'
           - name: variable.language.this.alta
             match: '\b(this)\b'
           - name: variable.language.super.alta
@@ -517,8 +581,13 @@ repository:
         7:
           name: storage.modifier.optional.alta
         8:
+          name: punctuation.opening-parenthesis.alta
+        9:
           name: variable.parameter.alta
-      end: '\)'
+      end: '(\))'
+      endCaptures:
+        1:
+          name: punctuation.closing-parenthesis.alta
       patterns:
       - match: ',\s*([A-Za-z_][A-Za-z_0-9]*)\s*:\s*'
         captures:
@@ -526,10 +595,12 @@ repository:
             name: variable.parameter.alta
       - include: '#expression'
     - name: meta.method-call.alta
-      match: '((?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)+)(?:\b([A-Za-z_][A-Za-z_0-9]*)\b)(\s*<\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)(\s*,\s*\g<rootType>)*\s*,?\s*>)?(\?)?\s*(?=\()'
+      match: '((?:\$?\b[A-Za-z_][A-Za-z_0-9]*\b\.)+)(?:\b([A-Za-z_][A-Za-z_0-9]*)\b)(\s*<\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)(\s*,\s*\g<rootType>)*\s*,?\s*>)?(\?)?\s*(?=\()'
       captures:
         1:
           patterns:
+          - name: variable.language.special.alta
+            match: '\$\b[A-Za-z_][A-Za-z_0-9]*\b'
           - name: variable.language.this.alta
             match: '\b(this)\b'
           - name: variable.language.super.alta
@@ -544,7 +615,7 @@ repository:
         7:
           name: storage.modifier.optional.alta
     - name: meta.method-call.alta
-      begin: '\.(?:\b([A-Za-z_][A-Za-z_0-9]*)\b)(\s*<\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)(\s*,\s*\g<rootType>)*\s*,?\s*>)?(\?)?\s*\(\s*(?:([A-Za-z_][A-Za-z_0-9]*)\s*:\s*)?'
+      begin: '\.(?:\b([A-Za-z_][A-Za-z_0-9]*)\b)(\s*<\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)(\s*,\s*\g<rootType>)*\s*,?\s*>)?(\?)?\s*(\()\s*(?:([A-Za-z_][A-Za-z_0-9]*)\s*:\s*)?'
       beginCaptures:
         1:
           name: entity.name.function.member.alta
@@ -554,13 +625,20 @@ repository:
         6:
           name: storage.modifier.optional.alta
         7:
+          name: punctuation.opening-parenthesis.alta
+        8:
           name: variable.parameter.alta
-      end: '\)'
+      end: '(\))'
+      endCaptures:
+        1:
+          name: punctuation.closing-parenthesis.alta
       patterns:
-      - match: ',\s*([A-Za-z_][A-Za-z_0-9]*)\s*:\s*'
+      - match: ',\s*([A-Za-z_][A-Za-z_0-9]*)\s*(:)\s*'
         captures:
           1:
             name: variable.parameter.alta
+          2:
+            name: punctuation.colon.alta
       - include: '#expression'
     - name: meta.method-call.alta
       match: '\.(?:\b([A-Za-z_][A-Za-z_0-9]*)\b)(\s*<\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)(\s*,\s*\g<rootType>)*\s*,?\s*>)?(\?)?\s*(?=\()'
@@ -573,7 +651,7 @@ repository:
         6:
           name: storage.modifier.optional.alta
     - name: meta.function-call.alta
-      begin: '(?!\.)(?:\b([A-Za-z_][A-Za-z_0-9]*)\b)(\s*<\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)(\s*,\s*\g<rootType>)*\s*,?\s*>)?(\?)?\s*\(\s*(?:([A-Za-z_][A-Za-z_0-9]*)\s*:\s*)?'
+      begin: '(?!\.)(?:\b([A-Za-z_][A-Za-z_0-9]*)\b)(\s*<\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)(\s*,\s*\g<rootType>)*\s*,?\s*>)?(\?)?\s*(\()\s*(?:([A-Za-z_][A-Za-z_0-9]*)\s*(:)\s*)?'
       beginCaptures:
         1:
           name: entity.name.function.alta
@@ -583,13 +661,22 @@ repository:
         6:
           name: storage.modifier.optional.alta
         7:
+          name: punctuation.opening-parenthesis.alta
+        8:
           name: variable.parameter.alta
-      end: '\)'
+        9:
+          name: punctuation.colon.alta
+      end: '(\))'
+      endCaptures:
+        1:
+          name: punctuation.closing-parenthesis.alta
       patterns:
-      - match: ',\s*([A-Za-z_][A-Za-z_0-9]*)\s*:\s*'
+      - match: ',\s*([A-Za-z_][A-Za-z_0-9]*)\s*(:)\s*'
         captures:
           1:
             name: variable.parameter.alta
+          2:
+            name: punctuation.colon.alta
       - include: '#expression'
     - name: meta.function-call.alta
       match: '(?!\.)(?:\b([A-Za-z_][A-Za-z_0-9]*)\b)(\s*<\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)(\s*,\s*\g<rootType>)*\s*,?\s*>)?(\?)?\s*(?=\()'
@@ -605,7 +692,10 @@ repository:
       beginCaptures:
         1:
           name: storage.modifier.optional.alta
-      end: '\)'
+      end: '(\))'
+      endCaptures:
+        1:
+          name: punctuation.closing-parenthesis.alta
       patterns:
       - include: '#expression'
   instof:
@@ -689,10 +779,12 @@ repository:
     - include: '#instantiation'
     - include: '#cast'
     - include: '#var-def-cutoff'
-    - match: '((?:\b(?:[A-Za-z_][A-Za-z_0-9]*)\b\.)*)\b([A-Za-z_][A-Za-z_0-9]*)\b\s*(\s*<\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)(\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?\s*$'
+    - match: '((?:\$?\b(?:[A-Za-z_][A-Za-z_0-9]*)\b\.)*)\b([A-Za-z_][A-Za-z_0-9]*)\b\s*(\s*<\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)(\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?\s*$'
       captures:
         1:
           patterns:
+            - name: variable.language.special.alta
+              match: '\$\b[A-Za-z_][A-Za-z_0-9]*\b'
             - name: variable.language.this.alta
               match: '\b(this)\b'
             - name: variable.language.super.alta
@@ -712,6 +804,7 @@ repository:
     - include: '#super-expr'
     - include: '#number'
     - include: '#yield'
+    - include: '#await'
     - include: '#strict-accessor'
     - include: '#accessor'
     - include: '#bin-op'
@@ -733,6 +826,7 @@ repository:
     - include: '#super-expr'
     - include: '#number'
     - include: '#yield'
+    - include: '#await'
     - include: '#strict-accessor'
     - include: '#accessor'
     - include: '#bin-op'
@@ -743,7 +837,7 @@ repository:
     match: '\+=|\-=|\*=|/=|&=|\|=|^=|%=|==|!=|\+|\-|\*|/|%|&&|\|\||&|\||^|<=|>=|<|>'
   class-definition:
     name: meta.class-definition.alta
-    begin: '((?:(?:\b(?:export|literal|generic)\b|(?<attribute>(?:@(?:@)?)\b(?:[A-Za-z_][A-Za-z_0-9]*)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*\b(?:\s*\(\s*(?:(?<attrParam>\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?)\b|\b[0-9]+(?:\.[0-9]+)?\b|\b(?:true|false)\b|''(?:[^''\\]|\\.)''|"(?:[^"\\]|\\.)*"|\b[A-Za-z_][A-Za-z_0-9]*\b(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)(?:\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?)(?:\s*,\s*\g<attrParam>)*\s*,?)?\s*\))?))\s*)*)\s*\b(class)\b\s*([A-Za-z_][A-Za-z_0-9]*)(\s*<\s*(?<classGeneric>[A-Za-z_][A-Za-z_0-9]*)(\s*,\s*\g<classGeneric>)*\s*,?\s*>\s*)?\s*(?:\b(extends)\b\s*((?<classParent>\b([A-Za-z_][A-Za-z_0-9]*)\b((?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*)(\s*<\s*\g<rootType>(\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?(\s*,\s*\g<classParent>)*\s*,?)))?\s*\{\s*'
+    begin: '((?:(?:\b(?:export|literal|generic)\b|(?<attribute>(?:@(?:@)?)\b(?:[A-Za-z_][A-Za-z_0-9]*)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*\b(?:\s*\(\s*(?:(?<attrParam>\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?)\b|\b[0-9]+(?:\.[0-9]+)?\b|\b(?:true|false)\b|''(?:[^''\\]|\\.)''|"(?:[^"\\]|\\.)*"|\b[A-Za-z_][A-Za-z_0-9]*\b(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)(?:\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?)(?:\s*,\s*\g<attrParam>)*\s*,?)?\s*\))?))\s*)*)\s*\b(class)\b\s*([A-Za-z_][A-Za-z_0-9]*)(\s*<\s*(?<classGeneric>[A-Za-z_][A-Za-z_0-9]*)(\s*,\s*\g<classGeneric>)*\s*,?\s*>\s*)?\s*(?:\b(extends)\b\s*((?<classParent>\b([A-Za-z_][A-Za-z_0-9]*)\b((?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*)(\s*<\s*\g<rootType>(\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?(\s*,\s*\g<classParent>)*\s*,?)))?\s*(\{)\s*'
     beginCaptures:
       1:
         patterns:
@@ -766,10 +860,15 @@ repository:
       12:
         patterns:
         - include: '#class-accessor'
-    end: '\}'
+      19:
+        name: punctuation.opening-brace.alta
+    end: '(\})'
+    endCaptures:
+      1:
+        name: punctuation.closing-brace.alta
     patterns:
     - name: meta.class-statement.alta
-      begin: '\b(public|private|protected)\b\s*'
+      begin: '\b(public|private|protected|module|package)\b\s*'
       beginCaptures:
         1:
           name: storage.modifier.visibility.alta
@@ -784,31 +883,41 @@ repository:
   from-to:
     patterns:
     - name: meta.from-caster.alta
-      begin: '\b(from)\b\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)\s*\{'
+      begin: '\b(from)\b\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)\s*(\{)'
       beginCaptures:
         1:
           name: keyword.from.alta
         2:
           patterns:
           - include: '#type'
-      end: '\}'
+        3:
+          name: punctuation.opening-brace.alta
+      end: '(\})'
+      endCaptures:
+        1:
+          name: punctuation.closing-brace.alta
       patterns:
       - include: '#statements'
     - name: meta.to-caster.alta
-      begin: '\b(to)\b\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)\s*\{'
+      begin: '\b(to)\b\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)\s*(\{)'
       beginCaptures:
         1:
           name: keyword.to.alta
         2:
           patterns:
           - include: '#type'
-      end: '\}'
+        3:
+          name: punctuation.opening-brace.alta
+      end: '(\})'
+      endCaptures:
+        1:
+          name: punctuation.closing-brace.alta
       patterns:
       - include: '#statements'
   operator-overload:
     patterns:
     - name: meta.operator-overload.subscript.alta
-      begin: '\b(this)\b\s*\[\s*((?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?))\s*\]\s*:\s*(\g<rootType>)\s*\{'
+      begin: '\b(this)\b\s*\[\s*((?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?))\s*\]\s*:\s*(\g<rootType>)\s*(\{)'
       beginCaptures:
         1:
           name: variable.language.this.alta
@@ -818,11 +927,16 @@ repository:
         5:
           patterns:
           - include: '#type'
-      end: '\}'
+        6:
+          name: punctuation.opening-brace.alta
+      end: '(\})'
+      endCaptures:
+        1:
+          name: punctuation.closing-brace.alta
       patterns:
       - include: '#statements'
     - name: meta.operator-overload.unary.alta
-      begin: '(!|~)\s*\b(this)\b\s*:\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)\s*\{'
+      begin: '(!|~)\s*\b(this)\b\s*:\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)\s*(\{)'
       beginCaptures:
         1:
           name: keyword.operator.alta
@@ -831,11 +945,16 @@ repository:
         3:
           patterns:
           - include: '#type'
-      end: '\}'
+        4:
+          name: punctuation.opening-brace.alta
+      end: '(\})'
+      endCaptures:
+        1:
+          name: punctuation.closing-brace.alta
       patterns:
       - include: '#statements'
     - name: meta.operator-overload.left.alta
-      begin: '\b(this)\b\s*(\+=|-=|\*=|/=|%=|<<=|>>=|&=|\|=|\^=|\+|-|\*|/|%|\^|<<|>>|&&|\|\||&|\||==|!=|<=|>=|<|>|=)\s*((?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?))\s*:\s*(\g<rootType>)\s*\{'
+      begin: '\b(this)\b\s*(\+=|-=|\*=|/=|%=|<<=|>>=|&=|\|=|\^=|\+|-|\*|/|%|\^|<<|>>|&&|\|\||&|\||==|!=|<=|>=|<|>|=)\s*((?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?))\s*:\s*(\g<rootType>)\s*(\{)'
       beginCaptures:
         1:
           name: variable.language.this.alta
@@ -847,11 +966,16 @@ repository:
         6:
           patterns:
           - include: '#type'
-      end: '\}'
+        7:
+          name: punctuation.opening-brace.alta
+      end: '(\})'
+      endCaptures:
+        1:
+          name: punctuation.closing-brace.alta
       patterns:
       - include: '#statements'
     - name: meta.operator-overload.right.alta
-      begin: '((?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?))\s*(\+|-|\*|/|%|\^|<<|>>|&|\||&&|\|\||==|!=|<=|>=|<|>)\s*\b(this)\b\s*:\s*(\g<rootType>)\s*\{'
+      begin: '((?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?))\s*(\+|-|\*|/|%|\^|<<|>>|&|\||&&|\|\||==|!=|<=|>=|<|>)\s*\b(this)\b\s*:\s*(\g<rootType>)\s*(\{)'
       beginCaptures:
         1:
           patterns:
@@ -863,7 +987,12 @@ repository:
         6:
           patterns:
           - include: '#type'
-      end: '\}'
+        7:
+          name: punctuation.opening-brace.alta
+      end: '(\})'
+      endCaptures:
+        1:
+          name: punctuation.closing-brace.alta
       patterns:
       - include: '#statements'
   class-accessor:
@@ -882,42 +1011,78 @@ repository:
   ctor-dtor:
     patterns:
     - name: meta.constructor.alta
-      begin: '((?:(?:(?<attribute>(?:@(?:@)?)\b(?:[A-Za-z_][A-Za-z_0-9]*)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*\b(?:\s*\(\s*(?:(?<attrParam>\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?)\b|\b[0-9]+(?:\.[0-9]+)?\b|\b(?:true|false)\b|''(?:[^''\\]|\\.)''|"(?:[^"\\]|\\.)*"|\b[A-Za-z_][A-Za-z_0-9]*\b(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)(?:\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?)(?:\s*,\s*\g<attrParam>)*\s*,?)?\s*\))?))\s*)*)\b(constructor)\b\s*\(\s*(?<params>\s*((?<funcParam>(?:\g<attribute>\s*)*[A-Za-z_][A-Za-z_0-9]*\s*:\s*\g<rootType>(?:\s*\.\.\.)?)\s*(?:\s*,\s*\g<funcParam>)*)?\s*,?\s*)\s*\)\s*(\{)'
+      begin: '((?:(?:(?<attribute>(?:@(?:@)?)\b(?:[A-Za-z_][A-Za-z_0-9]*)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*\b(?:\s*\(\s*(?:(?<attrParam>\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?)\b|\b[0-9]+(?:\.[0-9]+)?\b|\b(?:true|false)\b|''(?:[^''\\]|\\.)''|"(?:[^"\\]|\\.)*"|\b[A-Za-z_][A-Za-z_0-9]*\b(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)(?:\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?)(?:\s*,\s*\g<attrParam>)*\s*,?)?\s*\))?))\s*)*)\b(constructor)\b\s*'
       beginCaptures:
         1:
           patterns:
           - include: '#attribute'
         6:
-          name: keyword.constructor.alta
-        7:
-          name: meta.function.parameters.alta
-          patterns:
-          - include: '#attribute'
-          - match: '(?<id>[A-Za-z_][A-Za-z_0-9]*)\s*:\s*(?<type>(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?))(\s*\.\.\.)?'
-            captures:
-              1:
-                name: variable.parameter.alta
-              2:
-                patterns:
-                - include: '#type'
-              5:
-                name: storage.modifier.variadic.alta
-        10:
-          name: punctuation.opening-brace.alta
-      end: '(\})'
+          name: storage.type.constructor.alta
+      end: '(?<=\})'
       patterns:
-      - include: '#statements'
+      - name: meta.constructor.parameters.alta
+        begin: '\s*(\()'
+        beginCaptures:
+          1:
+            name: punctuation.opening-parenthesis.alta
+        end: '(\))'
+        endCaptures:
+          1:
+            name: punctuation.closing-parenthesis.alta
+        patterns:
+        - include: '#attribute'
+        - begin: '(?<id>[A-Za-z_][A-Za-z_0-9]*)\s*:\s*(?<type>(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?))(\s*\.\.\.)?\s*(=)\s*'
+          beginCaptures:
+            1:
+              name: variable.parameter.alta
+            2:
+              patterns:
+              - include: '#type'
+            5:
+              name: storage.modifier.variadic.alta
+            6:
+              name: punctuation.equal-sign.alta
+          patterns:
+            - include: '#expression'
+          end: '(?=,|\))'
+        - match: '(?<id>[A-Za-z_][A-Za-z_0-9]*)\s*:\s*(?<type>(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?))(\s*\.\.\.)?'
+          captures:
+            1:
+              name: variable.parameter.alta
+            2:
+              patterns:
+              - include: '#type'
+            5:
+              name: storage.modifier.variadic.alta
+      - name: meta.constructor.body.alta
+        begin: '(?<=\))\s*(\{)'
+        beginCaptures:
+          1:
+            name: punctuation.opening-brace.alta
+        end: '(\})'
+        endCaptures:
+          1:
+            name: punctuation.closing-brace.alta
+        patterns:
+          - include: '#statements'
     - name: meta.destructor.alta
-      begin: '((?:(?:(?<attribute>(?:@(?:@)?)\b(?:[A-Za-z_][A-Za-z_0-9]*)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*\b(?:\s*\(\s*(?:(?<attrParam>\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?)\b|\b[0-9]+(?:\.[0-9]+)?\b|\b(?:true|false)\b|''(?:[^''\\]|\\.)''|"(?:[^"\\]|\\.)*"|\b[A-Za-z_][A-Za-z_0-9]*\b(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)(?:\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?)(?:\s*,\s*\g<attrParam>)*\s*,?)?\s*\))?))\s*)*)\b(destructor)\b\s*\(\s*\)\s*(\{)'
+      begin: '((?:(?:(?<attribute>(?:@(?:@)?)\b(?:[A-Za-z_][A-Za-z_0-9]*)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*\b(?:\s*\(\s*(?:(?<attrParam>\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?)\b|\b[0-9]+(?:\.[0-9]+)?\b|\b(?:true|false)\b|''(?:[^''\\]|\\.)''|"(?:[^"\\]|\\.)*"|\b[A-Za-z_][A-Za-z_0-9]*\b(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)(?:\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?)(?:\s*,\s*\g<attrParam>)*\s*,?)?\s*\))?))\s*)*)\b(destructor)\b\s*(\()\s*(\))\s*(\{)'
       beginCaptures:
         1:
           patterns:
           - include: '#attribute'
         6:
-          name: keyword.destructor.alta
+          name: storage.type.destructor.alta
         7:
+          name: punctuation.opening-parenthesis.alta
+        8:
+          name: punctuation.closing-parenthesis.alta
+        9:
           name: punctuation.opening-brace.alta
       end: '(\})'
+      endCaptures:
+        1:
+          name: punctuation.closing-brace.alta
       patterns:
       - include: '#statements'
   var-def-cutoff:
@@ -999,7 +1164,7 @@ repository:
         - include: '#type'
   bitfield-definition:
     name: meta.bitfield-definition.alta
-    begin: '((?:(?:\b(?:export|literal)\b|(?<attribute>(?:@(?:@)?)\b(?:[A-Za-z_][A-Za-z_0-9]*)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*\b(?:\s*\(\s*(?:(?<attrParam>\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?)\b|\b[0-9]+(?:\.[0-9]+)?\b|\b(?:true|false)\b|''(?:[^''\\]|\\.)''|"(?:[^"\\]|\\.)*"|\b[A-Za-z_][A-Za-z_0-9]*\b(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)(?:\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?)(?:\s*,\s*\g<attrParam>)*\s*,?)?\s*\))?))\s*)*)\b(bitfield)\b\s*\b([A-Za-z_][A-Za-z_0-9]*)\b\s*(?::\s*(\g<rootType>)\s*)?\{'
+    begin: '((?:(?:\b(?:export|literal)\b|(?<attribute>(?:@(?:@)?)\b(?:[A-Za-z_][A-Za-z_0-9]*)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*\b(?:\s*\(\s*(?:(?<attrParam>\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?)\b|\b[0-9]+(?:\.[0-9]+)?\b|\b(?:true|false)\b|''(?:[^''\\]|\\.)''|"(?:[^"\\]|\\.)*"|\b[A-Za-z_][A-Za-z_0-9]*\b(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)(?:\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?)(?:\s*,\s*\g<attrParam>)*\s*,?)?\s*\))?))\s*)*)\b(bitfield)\b\s*\b([A-Za-z_][A-Za-z_0-9]*)\b\s*(?::\s*(\g<rootType>)\s*)?(\{)'
     beginCaptures:
       1:
         patterns:
@@ -1016,7 +1181,12 @@ repository:
       8:
         patterns:
         - include: '#type'
-    end: '\}'
+      9:
+        name: punctuation.opening-brace.alta
+    end: '(\})'
+    endCaptures:
+      1:
+        name: punctuation.closing-brace.alta
     patterns:
     - name: meta.bitfield.member.alta
       match: '([A-Za-z_][A-Za-z_0-9]*)\s*(?::\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)\s*)?=\s*((?<number>\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?|[0-9]+(?:\.[0-9]+)?)\b))(\.\.\.?)(\g<number>)'
@@ -1034,9 +1204,10 @@ repository:
         7:
           patterns:
           - include: '#number'
+    - include: '#comment'
   enumeration-definition:
     name: meta.enumeration-definition.alta
-    begin: '((?:(?:\b(?:export|literal)\b|(?<attribute>(?:@(?:@)?)\b(?:[A-Za-z_][A-Za-z_0-9]*)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*\b(?:\s*\(\s*(?:(?<attrParam>\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?)\b|\b[0-9]+(?:\.[0-9]+)?\b|\b(?:true|false)\b|''(?:[^''\\]|\\.)''|"(?:[^"\\]|\\.)*"|\b[A-Za-z_][A-Za-z_0-9]*\b(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)(?:\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?)(?:\s*,\s*\g<attrParam>)*\s*,?)?\s*\))?))\s*)*)\b(enum)\b\s*\b([A-Za-z_][A-Za-z_0-9]*)\b\s*:\s*(\g<rootType>)\s*\{'
+    begin: '((?:(?:\b(?:export|literal)\b|(?<attribute>(?:@(?:@)?)\b(?:[A-Za-z_][A-Za-z_0-9]*)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*\b(?:\s*\(\s*(?:(?<attrParam>\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?)\b|\b[0-9]+(?:\.[0-9]+)?\b|\b(?:true|false)\b|''(?:[^''\\]|\\.)''|"(?:[^"\\]|\\.)*"|\b[A-Za-z_][A-Za-z_0-9]*\b(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)(?:\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?)(?:\s*,\s*\g<attrParam>)*\s*,?)?\s*\))?))\s*)*)\b(enum)\b\s*\b([A-Za-z_][A-Za-z_0-9]*)\b\s*:\s*(\g<rootType>)\s*(\{)'
     beginCaptures:
       1:
         patterns:
@@ -1053,7 +1224,12 @@ repository:
       8:
         patterns:
         - include: '#type'
-    end: '\}'
+      9:
+        name: punctuation.opening-brace.alta
+    end: '(\})'
+    endCaptures:
+      1:
+        name: punctuation.closing-brace.alta
     patterns:
     - name: meta.enumeration.member.alta
       begin: '\b([A-Za-z_][A-Za-z_0-9]*)\b\s*=\s*'
@@ -1068,9 +1244,10 @@ repository:
       captures:
         1:
           name: variable.other.member.alta
+    - include: '#comment'
   structure-definition:
     name: meta.structure-definition.alta
-    begin: '((?:(?:\b(?:export|literal)\b|(?<attribute>(?:@(?:@)?)\b(?:[A-Za-z_][A-Za-z_0-9]*)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*\b(?:\s*\(\s*(?:(?<attrParam>\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?)\b|\b[0-9]+(?:\.[0-9]+)?\b|\b(?:true|false)\b|''(?:[^''\\]|\\.)''|"(?:[^"\\]|\\.)*"|\b[A-Za-z_][A-Za-z_0-9]*\b(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)(?:\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?)(?:\s*,\s*\g<attrParam>)*\s*,?)?\s*\))?))\s*)*)\b(struct)\b\s*\b([A-Za-z_][A-Za-z_0-9]*)\b\s*\{'
+    begin: '((?:(?:\b(?:export|literal)\b|(?<attribute>(?:@(?:@)?)\b(?:[A-Za-z_][A-Za-z_0-9]*)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*\b(?:\s*\(\s*(?:(?<attrParam>\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?)\b|\b[0-9]+(?:\.[0-9]+)?\b|\b(?:true|false)\b|''(?:[^''\\]|\\.)''|"(?:[^"\\]|\\.)*"|\b[A-Za-z_][A-Za-z_0-9]*\b(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)(?:\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?)(?:\s*,\s*\g<attrParam>)*\s*,?)?\s*\))?))\s*)*)\b(struct)\b\s*\b([A-Za-z_][A-Za-z_0-9]*)\b\s*(\{)'
     beginCaptures:
       1:
         patterns:
@@ -1084,7 +1261,12 @@ repository:
         name: keyword.structure.alta
       7:
         name: entity.name.structure.alta
-    end: '\}'
+      8:
+        name: punctuation.opening-brace.alta
+    end: '(\})'
+    endCaptures:
+      1:
+        name: punctuation.closing-brace.alta
     patterns:
     - name: meta.structure.member.alta
       match: '([A-Za-z_][A-Za-z_0-9]*)\s*:\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)'
@@ -1094,6 +1276,7 @@ repository:
         2:
           patterns:
           - include: '#type'
+    - include: '#comment'
   import-statement:
     patterns:
     - name: meta.freeform-cherry-pick-import.alta
@@ -1122,8 +1305,12 @@ repository:
       beginCaptures:
         1:
           name: keyword.import.alta
+        2:
+          name: punctuation.opening-brace.alta
       end: '(\})\s*\b(from)\b\s*("(?:[^"\\]|\\.)*")'
       endCaptures:
+        1:
+          name: punctuation.closing-brace.alta
         2:
           name: keyword.import.from.alta
         3:
@@ -1144,14 +1331,15 @@ repository:
           name: keyword.import.as.alta
         4:
           name: entity.name.namespace.alta
+    - include: '#comment'
   function-definition:
     name: meta.function-definition.alta
-    begin: '((?:(?:(?:\b(?:literal|export|generic|generator)\b)|(?<attribute>(?:@(?:@)?)\b(?:[A-Za-z_][A-Za-z_0-9]*)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*\b(?:\s*\(\s*(?:(?<attrParam>\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?)\b|\b[0-9]+(?:\.[0-9]+)?\b|\b(?:true|false)\b|''(?:[^''\\]|\\.)''|"(?:[^"\\]|\\.)*"|\b[A-Za-z_][A-Za-z_0-9]*\b(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)(?:\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?)(?:\s*,\s*\g<attrParam>)*\s*,?)?\s*\))?))\s*)*)\b(?<funcKeyword>function)\b\s*(?<funcName>[A-Za-z_][A-Za-z_0-9]*)\s*(<\s*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*,\s*\b[A-Za-z_][A-Za-z_0-9]*\b)*\s*,?\s*>\s*)?'
+    begin: '((?:(?:(?:\b(?:literal|export|generic|generator|async)\b)|(?<attribute>(?:@(?:@)?)\b(?:[A-Za-z_][A-Za-z_0-9]*)(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*\b(?:\s*\(\s*(?:(?<attrParam>\b(?:0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?)\b|\b[0-9]+(?:\.[0-9]+)?\b|\b(?:true|false)\b|''(?:[^''\\]|\\.)''|"(?:[^"\\]|\\.)*"|\b[A-Za-z_][A-Za-z_0-9]*\b(?:\.\b[A-Za-z_][A-Za-z_0-9]*\b)*(?:\s*<\s*(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?)(?:\s*,\s*\g<rootType>)*\s*,?\s*>\s*)?)(?:\s*,\s*\g<attrParam>)*\s*,?)?\s*\))?))\s*)*)\b(?<funcKeyword>function)\b\s*(?<funcName>[A-Za-z_][A-Za-z_0-9]*)\s*(<\s*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*,\s*\b[A-Za-z_][A-Za-z_0-9]*\b)*\s*,?\s*>\s*)?'
     beginCaptures:
       1:
         patterns:
         - include: '#attribute'
-        - match: '\b(literal|export|generic|generator)\b'
+        - match: '\b(literal|export|generic|generator|async)\b'
           captures:
             1:
               name: keyword.modifier.alta
@@ -1180,6 +1368,20 @@ repository:
           name: storage.modifier.variadic.alta
       patterns:
       - include: '#attribute'
+      - begin: '(?<id>[A-Za-z_][A-Za-z_0-9]*)\s*:\s*(?<type>(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?))(\s*\.\.\.)?\s*(=)\s*'
+        beginCaptures:
+          1:
+            name: variable.parameter.alta
+          2:
+            patterns:
+            - include: '#type'
+          5:
+            name: storage.modifier.variadic.alta
+          6:
+            name: punctuation.equal-sign.alta
+        patterns:
+          - include: '#expression'
+        end: '(?=,|\))'
       - match: '(?<id>[A-Za-z_][A-Za-z_0-9]*)\s*:\s*(?<type>(?<rootType>(?:\b(?:ptr|ref|const|unsigned|short|long|signed)\b\s*)*(?:(?:\(\s*(?:(?<param>(?:\b[A-Za-z_][A-Za-z_0-9]*\b\s*:\s*)?\g<rootType>)\s*(?:,\s*\g<param>)*,?)?\s*\)\s*(?:=>|->)\s*\g<rootType>)|(?:\(\s*\g<rootType>\s*\)(?:\s*\?)?)|(?:(?:\b[A-Za-z_][A-Za-z_0-9]*\b\.)*\b[A-Za-z_][A-Za-z_0-9]*\b(?:\s*<\s*\g<rootType>(?:\s*,\s*\g<rootType>)*\s*>)?))(?:\s*\?)?(?:\s*\|\s*\g<rootType>)?))(\s*\.\.\.)?'
         captures:
           1:
@@ -1243,13 +1445,13 @@ repository:
             name: storage.modifier.variadic.alta
   block:
     name: meta.block.alta
-    begin: '\{'
+    begin: '(\{)'
     beginCaptures:
-      0:
+      1:
         name: punctuation.opening-brace.alta
-    end: '\}'
+    end: '(\})'
     endCaptures:
-      0:
+      1:
         name: punctuation.closing-brace.alta
     patterns:
     - include: '#statements'
@@ -1341,7 +1543,13 @@ repository:
     match: '\b(yield)\b'
     captures:
       1:
-        name: keyword.yield.alta
+        name: keyword.control.yield.alta
+  await:
+    name: meta.await.alta
+    match: '\b(await)\b'
+    captures:
+      1:
+        name: keyword.control.await.alta
   number:
     name: meta.number.alta
     match: '\b(0x[0-9A-Fa-f]+(?:\.[0-9A-Fa-f]+)?|0o[0-7]+(?:\.[0-7]+)?|0b[0-1]+(?:\.[0-1]+)?|[1-9]+b[0-9A-Za-z]+(?:\.[0-9A-Za-z]+)?|[0-9]+(?:\.[0-9]+)?)\b'
