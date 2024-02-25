@@ -436,18 +436,12 @@ repository:
   conditional:
     patterns:
     - name: meta.conditional.alta
-      begin: '(?:\b(else)\b\s*)?\b(if)\b\s*([^\{]+)'
-      beginCaptures:
+      match: '(?:\b(else)\b\s*)?\b(if)\b'
+      captures:
         1:
           name: keyword.control.conditional.else.alta
         2:
           name: keyword.control.conditional.if.alta
-        3:
-          patterns:
-          - include: '#expression'
-      end: '$|;|\s'
-      patterns:
-      - include: '#statements'
     - name: meta.conditional.ultimatum.alta
       match: '\b(else)\b'
       captures:
